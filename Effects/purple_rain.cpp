@@ -46,12 +46,12 @@ int main() {
     Font font;
     if ( !font.loadFromFile("media/cassandra.ttf")) { return -1; }
 
-    Text text01("Salut Tiyam", font, fontSize);
+    Text text01("The first line", font, fontSize);
     FloatRect textRect = text01.getLocalBounds();     // set position at center of screen
     text01.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
     text01.setPosition(Vector2f(W/2.0f, H/2.0f));
 
-    Text text02("\n\n\n\n\n\nJe t'aime", font, fontSize);
+    Text text02("\n\n\n\n\n\n2nd line appears", font, fontSize);
     FloatRect textRect1 = text02.getLocalBounds();     // set position at center of screen
     text02.setOrigin(textRect1.left + textRect1.width/2.0f, textRect1.top  + textRect1.height/2.0f);
     text02.setPosition(Vector2f(W/2.0f, H/2.0f));
