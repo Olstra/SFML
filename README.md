@@ -1,2 +1,9 @@
 # SFML
-Testing out stuff in SFML
+Game projects with SFML
+
+Contains games:
+-snake
+
+Effects:
+-purple rain
+-matrix rain
