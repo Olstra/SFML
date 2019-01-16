@@ -1,19 +1,23 @@
+/** New v.3.0 [16 Jan 2019]:
+- implemented movement restriction (e.g. right->left not possible any more)
+- nicer code for draw() function and tail movement for-loop
+- fixed fruit positions (can now only appear inside walls)
+- better/correct string display for score (with sstream instead of C style method)
+
+TODOS:
+- implement game over when you touch snake tail
+
+KNOWN ISSUES:
+? tail first appears in map at (0/0), why tho
+*/
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
+#include <sstream>
+
 using namespace std;
 using namespace sf;
-
-/** TODOS
-o BUGFIX: when score >4/5 ???
-o use better string display for score (see when score>9)
-o application crashes if one doesnt click anything for some seconds
-- reorganize code structure
-- chage snakePos& fruitPos to sf::vectors
-x build in: play again feature
-x fix game over directly when touch wall, not after
-x use better random funtion
-*/
 
 // SFML stuff
 const int S_WIDTH = 2000;
@@ -34,43 +38,43 @@ enum Movement { STOP, RIGHT, LEFT, UP, DOWN };
 Movement dir;
 
 void init() {
-    srand(seed);        // LEARNING: before this function call was placed at a -global scope- but this way this function call doesn't work
+    srand(seed);
     gameOver = false;
     score = 0;
     dir = STOP;
 
-    // set starting position of player
-    snakePos[0] = W/2; // x coordinate of snake
-    snakePos[1] = H/2;
+    // set default starting position of player
+    snakePos[0] = W/2; // x-coordinate of snake
+    snakePos[1] = H/2; // y-coordinate of snake
 
     // starting position of fruit
-    fruitPos[0] = rand()%W;
-    fruitPos[1] = rand()%H;
+    fruitPos[0] = 1 + rand()%(W-2); // minimum at 1 and max W-1(-min) because we want it inside the walls
+    fruitPos[1] = 1 + rand()%(H-2);
 }
 
-void logic(sf::Clock clock) {
+void logic() {
     /* Responsible for:
         -Snake position (head and tail)
         -Fruit position
         -Game over
     */
 
+    // Caution: update snake tail coordinates before snake head!
+        // otherwise snake movement becomes ugly...
+
     // Tail of the snake
-    Vector2i temp;
-    temp.x = snakePos[0];
-    temp.y= snakePos[1];
-    Vector2i temp2;
-    for(int i = 0; i < score; i++) {
-        temp2.x = tailPos[i][0];
-        temp2.y = tailPos[i][1];
-
-        tailPos[i][0] = temp.x;
-        tailPos[i][1] = temp.y;
-
-        temp = temp2;
+    if (score > 1) {
+        for (int i = score-1; i > 0; i--) {
+            tailPos[i][0] = tailPos[i-1][0];
+            tailPos[i][1] = tailPos[i-1][1];
+        }
+    }
+    if (score > 0) {
+        tailPos[0][0] = snakePos[0];
+        tailPos[0][1] = snakePos[1];
     }
 
-    // handle moving of player [snake] left,right,up,down
+    // handle moving of player [snake] left, right, up, down
     switch(dir) {
         case STOP:
             break;
@@ -91,14 +95,13 @@ void logic(sf::Clock clock) {
     // we eat a fruit, snakeTail += 1
     if (snakePos[0] == fruitPos[0] && snakePos[1] == fruitPos[1]) {
         score++;    // increase score
-        fruitPos[0] = rand()%W-1;   // set coordinates for new fruit
-        fruitPos[1] = rand()%H-1;
+        fruitPos[0] = 1 + rand()%(W-2);   // set coordinates for new fruit
+        fruitPos[1] = 1 + rand()%(H-2);
     }
 
     // Game over when...
     if (snakePos[0] >= W || snakePos[0] <= 0 || snakePos[1] >= H || snakePos[1] <= 0) {
         gameOver = true;
-        clock.restart();
     }
 }
 
@@ -106,61 +109,46 @@ string draw() {
     /** We draw the screen and its contents with the help of a loop that iterates from top to bottom, "row for row" */
 
     string s;
+    bool space; // flag that tells us when to draw an empty space character
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+                space = true;
+                // walls
+                if (y == 0 || x == 0 || y == H-1 || x == W-1) { s += "#"; space = false; }
+                // snake head
+                if (x == snakePos[0] && y == snakePos[1]) { s += "A"; space = false; }
+                // snake head
+                for (int i = 0; i < score; i++) { if (x == tailPos[i][0] && y == tailPos[i][1]) { s += "o"; space = false; } }
+                // fruit
+                if (x == fruitPos[0] && y == fruitPos[1]) { s += "*"; space = false; }
+                // space between objects
+                if(space) { s += " "; }
+        }
+        s += "\n";  // we draw a new line every time we reach W
+    }
 
-    for (int i = 0; i < W + 2; i++) { s+= "#"; } // draw upper wall
-	s+= "\n";
-
-	for (int i = 0; i < H; i++) {
-		for (int j = 0; j < W; j++) {
-			if (j == 0) { s += "#"; }
-
-			if (i == snakePos[1] && j == snakePos[0]) { s += "A"; }
-
-			else if (i == fruitPos[1] && j == fruitPos[0]) { s += "*"; }
-
-			else {
-				bool print = false;
-				for (int k = 0; k < score; k++) {
-					if (tailPos[k][0] == j &&tailPos[k][1] == i) {
-						s += "o";
-						print = true;
-					}
-				}
-				if(!print) { s += " "; }
-			}
-			if (j == W - 1) { s += "#"; }
-		}
-		s+= "\n";
-	}
-	for (int i = 0; i < W + 2; i++) { s += "#"; }   // draw lower wall
-	s += "\n";
-
-	// c style conversion, since compiler doesn't supports to_string method ?
-    int tempS = 4;
-    char str[tempS];
-    sprintf(str, "%d", score);
-    string foo;
-    for (int i = 0; i< tempS;i++) { foo += str[i]; }
-    s += "\nSCORE: "+ foo.substr(0,1)  +"\n";   // because of display reasons we only display first char
-    s +=  "\n[x] EXIT \n";
+    // convert -int-score to -string-score
+    string scoreS; stringstream ss;
+    ss << score;
+    scoreS = ss.str();
+    s += "\n\nSCORE: "+ scoreS;
+    s +=  "\n\n[x] EXIT";
 
 return s;
 }
 
 
-int main()
-{
+int main() {
     // Create the main window
-    RenderWindow app(VideoMode(S_WIDTH, S_HEIGHT), "SFML Snake");
+    RenderWindow app(VideoMode(S_WIDTH, S_HEIGHT), "Oliver Coding Snake");
     app.setFramerateLimit(10);
     // Get Fonts
-    Font font; if (!font.loadFromFile("media/consolas.ttf")) { cout << "Error while loading font!" <<endl; }
+    Font font; if (!font.loadFromFile("media/consolas.ttf")) { cout << "Error while loading font!" <<endl; return -1; }
 
-    sf::Time delayTime = sf::seconds(1.5);
-    sf::Clock clock;
     // set starting position of snake head
     snakePos[0] = W/2;
     snakePos[1] = H/2;
+
     init(); // initialize game
 
     // Logical gui (command line style)
@@ -185,7 +173,7 @@ int main()
     gameOverOptions.setOrigin(textRect2.left + textRect2.width/2.0f, textRect2.top  + textRect2 .height/2.0f);
     gameOverOptions.setPosition( Vector2f(S_WIDTH/2.0f, S_HEIGHT-100) );
 
-	// Start the game loop
+	// Start the game loop ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     while (app.isOpen()) {
         // Process events
         Event event;
@@ -195,25 +183,23 @@ int main()
 
             if(event.type ==  Event::KeyPressed) {
                 switch (event.key.code) {
-
-                    if (!gameOver) {
+                    if (!gameOver) {    // player movement
                         case Keyboard::W:
-                            dir = UP;
+                            if (dir != DOWN) { dir = UP; }
                             break;
                         case Keyboard::S:
-                            dir = DOWN;
+                            if (dir != UP) { dir = DOWN; }
                             break;
                         case Keyboard::A:
-                            dir = LEFT;
+                            if (dir != RIGHT) { dir = LEFT; }
                             break;
                         case Keyboard::D:
-                            dir = RIGHT;
+                            if (dir != LEFT) { dir = RIGHT; }
                             break;
                     }
                     else {
                         case Keyboard::Enter:   // player chooses [play again]
                             init();
-                            clock.restart();
                             break;
                     }
                     case Keyboard::X:
@@ -228,7 +214,7 @@ int main()
         app.clear();
 
         if (!gameOver) {
-            logic(clock);
+            logic();
             gui = draw();
             text.setString(gui);
             app.draw(text);
@@ -242,5 +228,5 @@ int main()
         app.display();
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
