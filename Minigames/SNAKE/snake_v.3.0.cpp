@@ -1,4 +1,6 @@
-/** New v.3.0 [16 Jan 2019]:
+/** 
+Author: Olstra
+New v.3.0 [16 Jan 2019]:
 - implemented movement restriction (e.g. right->left not possible any more)
 - nicer code for draw() function and tail movement for-loop
 - fixed fruit positions (can now only appear inside walls)
