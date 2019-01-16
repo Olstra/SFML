@@ -106,7 +106,7 @@ void logic() {
 }
 
 string draw() {
-    /** We draw the screen and its contents with the help of a loop that iterates from top to bottom, "row for row" */
+    // We draw the screen and its contents with the help of a loop that iterates from top to bottom, "row for row"
 
     string s;
     bool space; // flag that tells us when to draw an empty space character
@@ -198,7 +198,7 @@ int main() {
                             break;
                     }
                     else {
-                        case Keyboard::Enter:   // player chooses [play again]
+                        case Keyboard::Enter:   // player chooses "play again"
                             init();
                             break;
                     }
