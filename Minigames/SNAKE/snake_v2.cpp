@@ -32,7 +32,7 @@ int score;
 int snakePos[2];
 int tailPos[100][2]; // store values for position(x/y)coordinates of snake tail as 2D array
 int fruitPos[2];
-int seed = static_cast<int>(time(0));       // LEARNING: seed needed to create better random numbers
+int seed = static_cast<int>(time(0));
 
 enum Movement { STOP, RIGHT, LEFT, UP, DOWN };
 Movement dir;
