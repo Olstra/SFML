@@ -1,17 +1,12 @@
 # Games and display effects
 
 Contains the games:
-```
-snake
-```
+* snake
+
 
 Effects:
-```
-purple rain
-```
-```
-matrix rain
-```
+* purple rain
+* matrix rain
 
 ## Author
 **Olstra**
