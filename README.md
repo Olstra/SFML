@@ -7,7 +7,7 @@ Effects:
 * purple rain
 * matrix rain
 
-## Aouthor
+## Author
 Olstra
 
 ## Made with 
