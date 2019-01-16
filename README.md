@@ -1,14 +1,18 @@
 # Games and display effects
 
-Contains games:
+Contains the games:
+```
 * snake
+```
 
 Effects:
+```
 * purple rain
 * matrix rain
+```
 
 ## Author
-Olstra
+**Olstra**
 
 ## Made with 
 * C++
