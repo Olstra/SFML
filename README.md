@@ -2,15 +2,15 @@
 
 Contains the games:
 ```
-* snake
+snake
 ```
 
 Effects:
 ```
-* purple rain
+purple rain
 ```
 ```
-* matrix rain
+matrix rain
 ```
 
 ## Author
