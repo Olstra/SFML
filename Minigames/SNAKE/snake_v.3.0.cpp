@@ -1,15 +1,16 @@
-/** 
+/**
 Author: Olstra
-New v.3.0 [16 Jan 2019]:
-- implemented movement restriction (e.g. right->left not possible any more)
-- nicer code for draw() function and tail movement for-loop
-- fixed fruit positions (can now only appear inside walls)
-- better/correct string display for score (with sstream instead of C style method)
+New v.3.1 [17 Jan 2019]:
+- 1 array for whole snake (instead of snakeHead & snakeTail)
+- Instructions added
+- improved randomness of fruit: every new game start new seed
 
 TODOS:
 - implement game over when you touch snake tail
 
 KNOWN ISSUES:
+x snake can move inside lower and right wall
+x pressing enter restarts game, even if currently playing
 ? tail first appears in map at (0/0), why tho
 */
 
@@ -31,23 +32,22 @@ const int H = 15;   // Dimensions of game walls
 const int W = 30;
 bool gameOver;
 int score;
-int snakePos[2];
-int tailPos[100][2]; // store values for position(x/y)coordinates of snake tail as 2D array
+int snakePos[100][2]; // store values for position(x/y)coordinates of snake as array
 int fruitPos[2];
-int seed = static_cast<int>(time(0));
 
 enum Movement { STOP, RIGHT, LEFT, UP, DOWN };
 Movement dir;
 
 void init() {
+    int seed = static_cast<int>(time(0));
     srand(seed);
     gameOver = false;
     score = 0;
     dir = STOP;
 
     // set default starting position of player
-    snakePos[0] = W/2; // x-coordinate of snake
-    snakePos[1] = H/2; // y-coordinate of snake
+    snakePos[0][0] = W/2; // x-coordinate of snakeHead
+    snakePos[0][1] = H/2; // y-coordinate of snakeHead
 
     // starting position of fruit
     fruitPos[0] = 1 + rand()%(W-2); // minimum at 1 and max W-1(-min) because we want it inside the walls
@@ -61,54 +61,47 @@ void logic() {
         -Game over
     */
 
-    // Caution: update snake tail coordinates before snake head!
+    // Caution: update snake tail coordinates before snake head (=snakePos[0]...)!
         // otherwise snake movement becomes ugly...
 
-    // Tail of the snake
-    if (score > 1) {
-        for (int i = score-1; i > 0; i--) {
-            tailPos[i][0] = tailPos[i-1][0];
-            tailPos[i][1] = tailPos[i-1][1];
+        for(int i = score; i > 0; i--) {
+            snakePos[i][0] = snakePos[i-1][0];
+            snakePos[i][1] = snakePos[i-1][1];
         }
-    }
-    if (score > 0) {
-        tailPos[0][0] = snakePos[0];
-        tailPos[0][1] = snakePos[1];
-    }
 
     // handle moving of player [snake] left, right, up, down
     switch(dir) {
         case STOP:
             break;
         case LEFT:
-            snakePos[0]--;
+            snakePos[0][0]--;
             break;
         case RIGHT:
-            snakePos[0]++;
+            snakePos[0][0]++;
             break;
         case UP:
-            snakePos[1]--;
+            snakePos[0][1]--;
             break;
         case DOWN:
-            snakePos[1]++;
+            snakePos[0][1]++;
             break;
     }
 
     // we eat a fruit, snakeTail += 1
-    if (snakePos[0] == fruitPos[0] && snakePos[1] == fruitPos[1]) {
+    if (snakePos[0][0] == fruitPos[0] && snakePos[0][1] == fruitPos[1]) {
         score++;    // increase score
         fruitPos[0] = 1 + rand()%(W-2);   // set coordinates for new fruit
         fruitPos[1] = 1 + rand()%(H-2);
     }
 
     // Game over when...
-    if (snakePos[0] >= W || snakePos[0] <= 0 || snakePos[1] >= H || snakePos[1] <= 0) {
+    if (snakePos[0][0] >= (W-1) || snakePos[0][0] <= 0 || snakePos[0][1] >= (H-1) || snakePos[0][1] <= 0) {
         gameOver = true;
     }
 }
 
 string draw() {
-    // We draw the screen and its contents with the help of a loop that iterates from top to bottom, "row for row"
+    /** We draw the screen and its contents with the help of a loop that iterates from top to bottom, "row for row" */
 
     string s;
     bool space; // flag that tells us when to draw an empty space character
@@ -118,9 +111,9 @@ string draw() {
                 // walls
                 if (y == 0 || x == 0 || y == H-1 || x == W-1) { s += "#"; space = false; }
                 // snake head
-                if (x == snakePos[0] && y == snakePos[1]) { s += "A"; space = false; }
-                // snake head
-                for (int i = 0; i < score; i++) { if (x == tailPos[i][0] && y == tailPos[i][1]) { s += "o"; space = false; } }
+                if (x == snakePos[0][0] && y == snakePos[0][1]) { s += "O"; space = false; }
+                // snake tail
+                for (int i = 1; i <= score; i++) { if (x == snakePos[i][0] && y == snakePos[i][1]) { s += "o"; space = false; } }
                 // fruit
                 if (x == fruitPos[0] && y == fruitPos[1]) { s += "*"; space = false; }
                 // space between objects
@@ -135,6 +128,7 @@ string draw() {
     scoreS = ss.str();
     s += "\n\nSCORE: "+ scoreS;
     s +=  "\n\n[x] EXIT";
+    s += "\tMOOVE WITH W/S/A/D";
 
 return s;
 }
@@ -146,10 +140,6 @@ int main() {
     app.setFramerateLimit(10);
     // Get Fonts
     Font font; if (!font.loadFromFile("media/consolas.ttf")) { cout << "Error while loading font!" <<endl; return -1; }
-
-    // set starting position of snake head
-    snakePos[0] = W/2;
-    snakePos[1] = H/2;
 
     init(); // initialize game
 
