@@ -1,10 +1,15 @@
 /** NOTES
+NEW:
+-removed start menu since it's unnecessary
+
 TODOS:
 - what happens when draw
-- bug if everything is clicked
-- make init() function
 - nicer display of game board/buttons in middle
 - change either esc with 'x' or change grpahic
+
+FIXED:
+- bug if everything is clicked
+- make init() function
 
 LEARNINGS:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -19,6 +24,9 @@ a == b && b == c
 #include <iostream>
 using namespace sf;
 
+// game variables
+bool playerTurn;
+int turnsTaken;
 
 // COLORS of the buttons
 Color startColor(250, 190, 0);
@@ -30,8 +38,8 @@ sf::RectangleShape board[3][3];
 
 // different game states used to display according background
 enum GameState {
-    startMenu, mainPlay, gameOver, youWin
-}currentState;
+    mainPlay, gameOver, youWin, itsADraw
+}currentState;  // define current state of the game
 
 void gameLogicWithColors () {
     // count how manx boxes have been clicked
@@ -69,12 +77,7 @@ void gameLogicWithColors () {
     }
 
     // if noone has won its a draw
-    if(tempCounter >= 9){ currentState = gameOver; }
-
-
-
-
-
+    if(tempCounter >= 9){ currentState = itsADraw; }
 
 }
 
@@ -88,13 +91,37 @@ sf::Vector2i AILogic() {
     return selectedButton;
 }
 
+void placeButtons(sf::RectangleShape baseButton) {
+    int scale = 300;
+    int offset = 350;
+    for(int x = 0; x < 3; x++) {
+        for (int y = 0; y < 3; y++) {
+            board[x][y] = baseButton;
+            board[x][y].setPosition(offset+x*scale, offset+y *scale);
+        }
+    }
+}
+
+void init() {
+    // initialize variables needed for the game
+    playerTurn = true;
+    currentState = mainPlay;
+    turnsTaken = 0;
+    srand(time(0));
+
+    // define how the buttons should look
+    RectangleShape baseButton;
+    baseButton.setSize(Vector2f(200, 200));
+    baseButton.setFillColor(startColor);
+
+    placeButtons(baseButton);
+
+}
+
 
 int main() {
 
     // SETUP /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const int windowW = 1500;
-    const int windowH = 1500;
-
     // Create the main window
     RenderWindow window(VideoMode(windowW, windowH), "Oliver Codes Tic Tac Toe", Style::Titlebar | Style::Close);
 
@@ -106,32 +133,9 @@ int main() {
     if (!four.loadFromFile("media/game_over.png")) { std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
     Sprite start_menu(one), main_play(two), you_win(three), game_over(four);
 
-    // TIC TAC TOE //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool playerTurn;
-    playerTurn = true;
-    currentState = startMenu;
-    srand(time(0));
+    // Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // initialize game board /////////////////////////////////////////
-    RectangleShape baseButton;
-    baseButton.setSize(Vector2f(200, 200));
-    baseButton.setFillColor(startColor);
-
-    // place buttons
-    int scale = 300;
-    int offset = 350;
-    for(int x = 0; x < 3; x++) {
-        for (int y = 0; y < 3; y++) {
-            board[x][y] = baseButton;
-            board[x][y].setPosition(offset+x*scale, offset+y *scale);
-        }
-    }
-
-
-    int turnsTaken = 0;
-
-	// Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    init(); // initialize the game for the first time
     while (window.isOpen()) {
         // Process events
         Event event;
@@ -145,11 +149,7 @@ int main() {
                         case Keyboard::Return: // changed name in from 'enter' in windows
                             // player chooses "play (again)"
                             if(currentState != mainPlay) {
-                                 // reset everything
-                                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { board[x][y].setFillColor(startColor); } } // reset color of buttons
-                                playerTurn = true;
-                                currentState = mainPlay;
-                                turnsTaken = 0;
+                                init(); // reset the games
                             }
                             break;
 
@@ -164,26 +164,24 @@ int main() {
 
 
         // Check for left mouse click ////////////////////////////
-        //if(currentState == mainPlay) {
-
-            if(playerTurn) {
-                if (Mouse::isButtonPressed(Mouse::Left)) {
-                    for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
-                            if ( board[x][y].getGlobalBounds().contains
-                                (Mouse::getPosition(window).x, Mouse::getPosition(window).y) ) { // get the current position of the mouse inside the window
-                                    if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
-                                        board[x][y].setFillColor(playerColor); // change color of the button that was clicked
-                                        playerTurn = false;
-                                        turnsTaken++;
-                                    }
-                            }
+        // it's the players turn
+        if(playerTurn) {
+            if (Mouse::isButtonPressed(Mouse::Left)) {
+                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                        if ( board[x][y].getGlobalBounds().contains
+                            (Mouse::getPosition(window).x, Mouse::getPosition(window).y) ) { // get the current position of the mouse inside the window
+                                if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
+                                    board[x][y].setFillColor(playerColor); // change color of the button that was clicked
+                                    playerTurn = false;
+                                    turnsTaken++;
+                                }
                         }
                     }
                 }
             }
-       //}
-
-if(turnsTaken<9) {
+        }
+        // it's AIs turn
+        if(turnsTaken<9) {
             if(!playerTurn) {
                 Vector2i temp;
                 // AI chooses its button
@@ -193,8 +191,6 @@ if(turnsTaken<9) {
                 board[temp.x][temp.y].setFillColor(AIColor);
                 playerTurn = true;
                 turnsTaken++;
-
-               // checkForDraw(); // placed here so we don't count the starting mode
             }
         }
         //////////////////////////////////////////////////////////////
@@ -207,9 +203,6 @@ if(turnsTaken<9) {
 
          // draw backgrounds according to current game state
         switch(currentState) {
-            case startMenu:
-                window.draw(start_menu);
-                break;
 
             case mainPlay:
                 window.draw(main_play);
@@ -223,6 +216,9 @@ if(turnsTaken<9) {
 
             case youWin:
                 window.draw(you_win);
+                break;
+
+            case itsADraw:
                 break;
         }
 
