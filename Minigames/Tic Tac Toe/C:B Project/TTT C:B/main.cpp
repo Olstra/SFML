@@ -72,7 +72,7 @@ sf::Vector2i AILogic() {
     return selectedButton;
 }
 
-// check for draft
+// check for draw
 void checkForDraw() {
 
     bool draw = true;
