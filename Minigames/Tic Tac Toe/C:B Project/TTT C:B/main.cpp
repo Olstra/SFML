@@ -24,7 +24,9 @@ a == b && b == c
 #include <iostream>
 using namespace sf;
 
-// game variables
+// game stuff
+const int windowW = 1500;
+const int windowH = 1500;
 bool playerTurn;
 int turnsTaken;
 
