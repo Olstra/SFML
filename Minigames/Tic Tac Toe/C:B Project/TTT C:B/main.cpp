@@ -4,6 +4,7 @@ TODOS:
 - bug if everything is clicked
 - make init() function
 - nicer display of game board/buttons in middle
+- change either esc with 'x' or change grpahic
 
 LEARNINGS:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23,6 +24,7 @@ using namespace sf;
 Color startColor(250, 190, 0);
 Color playerColor(250, 80, 35);
 Color AIColor(Color::Black);
+
 // create game board 3x3
 sf::RectangleShape board[3][3];
 
@@ -32,9 +34,15 @@ enum GameState {
 }currentState;
 
 void gameLogicWithColors () {
-    // check for all 3 equal with transitivity...
+    // count how manx boxes have been clicked
+    int tempCounter = 0;
+    for(int i = 0; i <3; i++) { for(int j = 0; j < 3; j++) {
+        if(board[i][j].getFillColor() != startColor) { tempCounter++;  } } }
+        std::cout << tempCounter << std::endl;
 
-    for(int i = 0; i < 3; i++) {
+    // if counter >= 3 check if someone has won
+    if( tempCounter >= 3 && tempCounter < 9) {
+        for(int i = 0; i < 3; i++) {
         // check win top to bottom
         if(board[i][0].getFillColor() == board[i][1].getFillColor() && board[i][1].getFillColor() == board[i][2].getFillColor()) {
             // check if player wins
@@ -46,20 +54,30 @@ void gameLogicWithColors () {
             if(board[0][i].getFillColor() == playerColor) { currentState = youWin; }
             else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; }
         }
+        }
+        // check the cross "X"
+        // from Top left to Bottom right: [0][0] == [1][1] == [2][2]
+        if( board[0][0].getFillColor()  == board[1][1].getFillColor() && board[1][1].getFillColor() == board[2][2].getFillColor() ) {
+            if(board[0][0].getFillColor() == playerColor) { currentState = youWin; }
+            else if (board[0][0].getFillColor() == AIColor) { currentState = gameOver; }
+        }
+        // from Bottom left to Top right: [0][2] == [1][1] == [2][0]
+        if( board[0][2].getFillColor()  == board[1][1].getFillColor()  &&  board[1][1].getFillColor() == board [2][0].getFillColor()  ) {
+            if(board[0][2].getFillColor() == playerColor) { currentState = youWin; }
+            else if (board[0][2].getFillColor() == AIColor) { currentState = gameOver; }
+        }
+
+
     }
 
-    // check the cross "X"
-    // from Top left to Bottom right: [0][0] == [1][1] == [2][2]
-    if( board[0][0].getFillColor()  == board[1][1].getFillColor() && board[1][1].getFillColor() == board[2][2].getFillColor() ) {
-        if(board[0][0].getFillColor() == playerColor) { currentState = youWin; }
-        else if (board[0][0].getFillColor() == AIColor) { currentState = gameOver; }
-    }
+    // todo correct this
+    //else if(tempCounter >= 9) { currentState = gameOver; }
 
-    // from Bottom left to Top right: [0][2] == [1][1] == [2][0]
-    if( board[0][2].getFillColor()  == board[1][1].getFillColor()  &&  board[1][1].getFillColor() == board [2][0].getFillColor()  ) {
-        if(board[0][2].getFillColor() == playerColor) { currentState = youWin; }
-        else if (board[0][2].getFillColor() == AIColor) { currentState = gameOver; }
-    }
+
+
+
+
+
 }
 
 // AI chooses a random button
@@ -110,8 +128,10 @@ int main() {
     currentState = startMenu;
     srand(time(0));
 
+    // initialize game board /////////////////////////////////////////
     RectangleShape baseButton;
     baseButton.setSize(Vector2f(200, 200));
+    baseButton.setFillColor(startColor);
 
     // place buttons
     int scale = 300;
@@ -155,8 +175,13 @@ int main() {
             }
         }
 
-        // Check for left mouse click ////////////////////////////
 
+        // run game logic
+        gameLogicWithColors();
+
+
+
+        // Check for left mouse click ////////////////////////////
         if(currentState == mainPlay) {
             if(playerTurn) {
                 if (Mouse::isButtonPressed(Mouse::Left)) {
@@ -167,7 +192,6 @@ int main() {
                                         board[x][y].setFillColor(playerColor); // change color of the button that was clicked
                                         playerTurn = false;
                                     }
-                                    else { continue; }
                             }
                         }
                     }
@@ -189,8 +213,7 @@ int main() {
         }
         //////////////////////////////////////////////////////////////
 
-        // run game logic
-        gameLogicWithColors();
+
 
 
         // Clear screen
