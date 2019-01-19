@@ -42,7 +42,7 @@ void gameLogicWithColors () {
             else if (board[i][0].getFillColor() == AIColor) { currentState = gameOver; }
         }
         // check for win from left to right
-        else if(board[0][i].getFillColor() == board[1][i].getFillColor() && board[i][1].getFillColor() == board[2][i].getFillColor()) {
+        else if(board[0][i].getFillColor() == board[1][i].getFillColor() && board[1][i].getFillColor() == board[2][i].getFillColor()) {
             if(board[0][i].getFillColor() == playerColor) { currentState = youWin; }
             else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; }
         }
@@ -72,6 +72,20 @@ sf::Vector2i AILogic() {
     return selectedButton;
 }
 
+// check for draft
+void checkForDraw() {
+
+    bool draw = true;
+    // check board if there is still boxes left to check
+    for(int i = 0; i < 3; i++) {
+        for (int j= 0; j <3; j++) {
+            if(board[i][j].getFillColor() == startColor) { draw = false; }
+        }
+    }
+
+    if(draw) { currentState = gameOver; }
+
+}
 
 int main() {
 
@@ -98,9 +112,6 @@ int main() {
 
     RectangleShape baseButton;
     baseButton.setSize(Vector2f(200, 200));
-//    baseButton.setFillColor(Color::Yellow);
-//    FloatRect textRect = baseButton.getLocalBounds();
-//    baseButton.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f); // set origin to middle of shape
 
     // place buttons
     int scale = 300;
@@ -128,10 +139,10 @@ int main() {
                         case Keyboard::Return: // changed name in from 'enter' in windows
                             // player chooses "play (again)"
                             if(currentState != mainPlay) {
-                                currentState = mainPlay;
                                  // reset everything
                                 for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { board[x][y].setFillColor(startColor); } } // reset color of buttons
                                 playerTurn = true;
+                                currentState = mainPlay;
                             }
                             break;
 
@@ -145,34 +156,42 @@ int main() {
         }
 
         // Check for left mouse click ////////////////////////////
-        if(playerTurn) {
-            if (Mouse::isButtonPressed(Mouse::Left)) {
-                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
-                        if ( board[x][y].getGlobalBounds().contains
-                            (Mouse::getPosition(window).x, Mouse::getPosition(window).y) ) { // get the current position of the mouse inside the window
-                                 if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
-                                    board[x][y].setFillColor(playerColor); // change color of the button that was clicked
-                                    playerTurn = false;
-                                 }
-                         }
+
+        if(currentState == mainPlay) {
+            if(playerTurn) {
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                            if ( board[x][y].getGlobalBounds().contains
+                                (Mouse::getPosition(window).x, Mouse::getPosition(window).y) ) { // get the current position of the mouse inside the window
+                                    if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
+                                        board[x][y].setFillColor(playerColor); // change color of the button that was clicked
+                                        playerTurn = false;
+                                    }
+                                    else { continue; }
+                            }
+                        }
                     }
                 }
             }
-        }
 
-        if(!playerTurn) {
-            Vector2i temp;
-            // AI chooses its button
-            do { temp = AILogic();
-            }while (board[temp.x][temp.y].getFillColor() != startColor); // meaning this is the first time we click on the button
+            if(!playerTurn) {
+                Vector2i temp;
+                // AI chooses its button
+                do { temp = AILogic();
+                }while (board[temp.x][temp.y].getFillColor() != startColor); // meaning this is the first time we click on the button
 
-            board[temp.x][temp.y].setFillColor(AIColor);
-            playerTurn = true;
+                board[temp.x][temp.y].setFillColor(AIColor);
+                playerTurn = true;
+
+
+                checkForDraw(); // so we don't count the starting mode
+            }
         }
         //////////////////////////////////////////////////////////////
 
         // run game logic
         gameLogicWithColors();
+
 
         // Clear screen
         window.clear();
