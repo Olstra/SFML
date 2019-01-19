@@ -41,37 +41,35 @@ void gameLogicWithColors () {
         std::cout << tempCounter << std::endl;
 
     // if counter >= 3 check if someone has won
-    if( tempCounter >= 3 && tempCounter < 9) {
+    if( tempCounter >= 3) {
+        // check top to bottm side to side
         for(int i = 0; i < 3; i++) {
-        // check win top to bottom
-        if(board[i][0].getFillColor() == board[i][1].getFillColor() && board[i][1].getFillColor() == board[i][2].getFillColor()) {
-            // check if player wins
-            if(board[i][0].getFillColor() == playerColor) { currentState = youWin; }
-            else if (board[i][0].getFillColor() == AIColor) { currentState = gameOver; }
-        }
-        // check for win from left to right
-        else if(board[0][i].getFillColor() == board[1][i].getFillColor() && board[1][i].getFillColor() == board[2][i].getFillColor()) {
-            if(board[0][i].getFillColor() == playerColor) { currentState = youWin; }
-            else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; }
-        }
+            // check top to bottom
+            if(board[i][0].getFillColor() == board[i][1].getFillColor() && board[i][1].getFillColor() == board[i][2].getFillColor()) {
+                if(board[i][0].getFillColor() == playerColor) { currentState = youWin; return; }
+                else if (board[i][0].getFillColor() == AIColor) { currentState = gameOver; return; }
+            }
+            // check for win from left to right
+            else if(board[0][i].getFillColor() == board[1][i].getFillColor() && board[1][i].getFillColor() == board[2][i].getFillColor()) {
+                if(board[0][i].getFillColor() == playerColor) { currentState = youWin; return; }
+                else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; return; }
+            }
         }
         // check the cross "X"
         // from Top left to Bottom right: [0][0] == [1][1] == [2][2]
         if( board[0][0].getFillColor()  == board[1][1].getFillColor() && board[1][1].getFillColor() == board[2][2].getFillColor() ) {
-            if(board[0][0].getFillColor() == playerColor) { currentState = youWin; }
-            else if (board[0][0].getFillColor() == AIColor) { currentState = gameOver; }
+            if(board[0][0].getFillColor() == playerColor) { currentState = youWin; return; }
+            else if (board[0][0].getFillColor() == AIColor) { currentState = gameOver; return; }
         }
         // from Bottom left to Top right: [0][2] == [1][1] == [2][0]
         if( board[0][2].getFillColor()  == board[1][1].getFillColor()  &&  board[1][1].getFillColor() == board [2][0].getFillColor()  ) {
-            if(board[0][2].getFillColor() == playerColor) { currentState = youWin; }
-            else if (board[0][2].getFillColor() == AIColor) { currentState = gameOver; }
+            if(board[0][2].getFillColor() == playerColor) { currentState = youWin; return; }
+            else if (board[0][2].getFillColor() == AIColor) { currentState = gameOver; return; }
         }
-
-
     }
 
-    // todo correct this
-    //else if(tempCounter >= 9) { currentState = gameOver; }
+    // if noone has won its a draw
+    if(tempCounter >= 9){ currentState = gameOver; }
 
 
 
@@ -90,20 +88,6 @@ sf::Vector2i AILogic() {
     return selectedButton;
 }
 
-// check for draw
-void checkForDraw() {
-
-    bool draw = true;
-    // check board if there is still boxes left to check
-    for(int i = 0; i < 3; i++) {
-        for (int j= 0; j <3; j++) {
-            if(board[i][j].getFillColor() == startColor) { draw = false; }
-        }
-    }
-
-    if(draw) { currentState = gameOver; }
-
-}
 
 int main() {
 
@@ -143,10 +127,12 @@ int main() {
         }
     }
 
+
+    int turnsTaken = 0;
+
 	// Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     while (window.isOpen()) {
-
         // Process events
         Event event;
         while (window.pollEvent(event)) {
@@ -163,6 +149,7 @@ int main() {
                                 for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { board[x][y].setFillColor(startColor); } } // reset color of buttons
                                 playerTurn = true;
                                 currentState = mainPlay;
+                                turnsTaken = 0;
                             }
                             break;
 
@@ -176,13 +163,9 @@ int main() {
         }
 
 
-        // run game logic
-        gameLogicWithColors();
-
-
-
         // Check for left mouse click ////////////////////////////
-        if(currentState == mainPlay) {
+        //if(currentState == mainPlay) {
+
             if(playerTurn) {
                 if (Mouse::isButtonPressed(Mouse::Left)) {
                     for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
@@ -191,13 +174,16 @@ int main() {
                                     if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
                                         board[x][y].setFillColor(playerColor); // change color of the button that was clicked
                                         playerTurn = false;
+                                        turnsTaken++;
                                     }
                             }
                         }
                     }
                 }
             }
+       //}
 
+if(turnsTaken<9) {
             if(!playerTurn) {
                 Vector2i temp;
                 // AI chooses its button
@@ -206,15 +192,15 @@ int main() {
 
                 board[temp.x][temp.y].setFillColor(AIColor);
                 playerTurn = true;
+                turnsTaken++;
 
-
-                checkForDraw(); // so we don't count the starting mode
+               // checkForDraw(); // placed here so we don't count the starting mode
             }
         }
         //////////////////////////////////////////////////////////////
 
-
-
+        // run game logic
+        gameLogicWithColors();
 
         // Clear screen
         window.clear();
