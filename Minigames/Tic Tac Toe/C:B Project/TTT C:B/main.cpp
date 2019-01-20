@@ -1,10 +1,11 @@
 /** NOTES
 
 NEW:
--implemented game delay
+- implemented game delay
+- nicer GUI
 
 BUGS:
--logic still kinda buggy
+-
 
 TODOS:
 -
@@ -15,14 +16,7 @@ FIXED/DONE:
 - what happens when draw
 - nicer display of game board/buttons in middle
 - change either esc with 'x' or change grpahic =>none is necessary
-
-LEARNINGS:
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-a == b == c <=doesn't work like that!!!
-better with transitivity:
-a == b && b == c
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+- logic is the same as coloring of buttons
 */
 
 #include <SFML/Graphics.hpp>
