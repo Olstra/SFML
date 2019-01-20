@@ -1,15 +1,20 @@
 /** NOTES
+
 NEW:
--removed start menu since it's unnecessary
+-implement game delay
+
+BUGS:
+-logic still kinda buggy
 
 TODOS:
-- what happens when draw
-- nicer display of game board/buttons in middle
-- change either esc with 'x' or change grpahic
+-
 
-FIXED:
+FIXED/DONE:
 - bug if everything is clicked
 - make init() function
+- what happens when draw
+- nicer display of game board/buttons in middle
+- change either esc with 'x' or change grpahic =>none is necessary
 
 LEARNINGS:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -25,15 +30,16 @@ a == b && b == c
 using namespace sf;
 
 // game stuff
-const int windowW = 1500;
-const int windowH = 1500;
+const int windowW = 800;
+const int windowH = 800;
 bool playerTurn;
 int turnsTaken;
 
-// COLORS of the buttons
-Color startColor(250, 190, 0);
-Color playerColor(250, 80, 35);
-Color AIColor(Color::Black);
+// GUI COLORS
+Color startColor(0, 30, 175);
+Color playerColor(255, 70, 65);
+Color AIColor(60, 150, 255);
+Color BGColor(35, 30, 65);
 
 // create game board 3x3
 sf::RectangleShape board[3][3];
@@ -65,6 +71,7 @@ void gameLogicWithColors () {
                 else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; return; }
             }
         }
+
         // check the cross "X"
         // from Top left to Bottom right: [0][0] == [1][1] == [2][2]
         if( board[0][0].getFillColor()  == board[1][1].getFillColor() && board[1][1].getFillColor() == board[2][2].getFillColor() ) {
@@ -94,14 +101,41 @@ sf::Vector2i AILogic() {
 }
 
 void placeButtons(sf::RectangleShape baseButton) {
-    int scale = 300;
-    int offset = 350;
+
+    // set origin of baseButton to center of button instead of upper left corner
+    FloatRect tempRect = baseButton.getLocalBounds();
+    baseButton.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+
+    // initialize buttons
     for(int x = 0; x < 3; x++) {
         for (int y = 0; y < 3; y++) {
             board[x][y] = baseButton;
-            board[x][y].setPosition(offset+x*scale, offset+y *scale);
         }
     }
+
+    // set position of buttons = #
+    int offset = windowW/4;
+
+    // middle button goes on center
+    board[1][1].setPosition(windowW/2, windowH/2);
+    Vector2f centerPos = board[1][1].getPosition();
+
+    board[1][2].setPosition(centerPos.x, centerPos.y+offset); // lower middle
+
+    board[1][0].setPosition(centerPos.x, centerPos.y-offset); // upper middle
+
+    board[0][0].setPosition(centerPos.x-offset, centerPos.y-offset);
+
+    board[0][2].setPosition(centerPos.x-offset, centerPos.y+offset); // lower left
+
+    board[0][1].setPosition(centerPos.x-offset, centerPos.y); // middle left
+
+    board[2][0].setPosition(centerPos.x+offset, centerPos.y-offset); // upper right
+
+    board[2][1].setPosition(centerPos.x+offset, centerPos.y); // middle right
+
+    board[2][2].setPosition(centerPos.x+offset, centerPos.y+offset);
+
 }
 
 void init() {
@@ -113,7 +147,7 @@ void init() {
 
     // define how the buttons should look
     RectangleShape baseButton;
-    baseButton.setSize(Vector2f(200, 200));
+    baseButton.setSize(Vector2f(windowW/5, windowH/5));
     baseButton.setFillColor(startColor);
 
     placeButtons(baseButton);
@@ -127,13 +161,61 @@ int main() {
     // Create the main window
     RenderWindow window(VideoMode(windowW, windowH), "Oliver Codes Tic Tac Toe", Style::Titlebar | Style::Close);
 
-    // Load backgrounds
-    Texture one, two, three, four;
-    if (!one.loadFromFile("media/start_menu.png")) { std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    if (!two.loadFromFile("media/main_play.png")) { std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    if (!three.loadFromFile("media/you_win.png")) { std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    if (!four.loadFromFile("media/game_over.png")) { std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    Sprite start_menu(one), main_play(two), you_win(three), game_over(four);
+    // create strings to display current game state
+    Font font;
+    if(!font.loadFromFile("media/GojiraBlack.ttf")) { std::cout << "ERROR: font could not be loaded." << std::endl; return -1; }
+
+    const int fontSize = 100;
+
+    // create display text (for different game states)
+
+    Text txtMainPlay("CLICK ON A BOX TO SELECT IT", font, fontSize/2);
+    txtMainPlay.setStyle(Text::Italic);
+    txtMainPlay.setFillColor(Color::White);
+
+    Text txtGameOver("GAME OVER", font, fontSize);
+    txtGameOver.setStyle(Text::Underlined | Text::Bold);
+    txtGameOver.setFillColor(Color::Red);
+
+    Text txtWin("YOU WIN!\n\t:-)", font, fontSize);
+    txtWin.setStyle(Text::Bold);
+    txtWin.setFillColor(Color::Green);
+
+    Text txtDraw("IT'S A DRAW...?!", font, fontSize);
+    txtDraw.setStyle(Text::Bold);
+    txtDraw.setFillColor(Color::White);
+
+    Text txtInfo("HIT ENTER TO PLAY AGAIN", font, fontSize/2);
+    txtInfo.setStyle(Text::Italic);
+    txtInfo.setFillColor(Color::White);
+
+    // set positions of text
+
+    // display tutorial & info text on bottom of window
+    FloatRect tempRect = txtMainPlay.getLocalBounds();
+    txtMainPlay.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    txtMainPlay.setPosition(windowW/2, windowH/15*14);
+
+    tempRect = txtInfo.getLocalBounds();
+    txtInfo.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    txtInfo.setPosition(windowW/2, windowH/15*14);
+
+    // other text will be displayed in middle of window
+    tempRect = txtDraw.getLocalBounds();
+    txtDraw.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    txtDraw.setPosition(windowW/2, windowH/2);
+
+    tempRect = txtGameOver.getLocalBounds();
+    txtGameOver.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    txtGameOver.setPosition(windowW/2, windowH/2);
+
+    tempRect = txtWin.getLocalBounds();
+    txtWin.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    txtWin.setPosition(windowW/2, windowH/2);
+
+    // Clock for ingame delays
+    Clock clock;
+    Time delay = seconds(0.5);
 
     // Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,6 +275,7 @@ int main() {
                 board[temp.x][temp.y].setFillColor(AIColor);
                 playerTurn = true;
                 turnsTaken++;
+
             }
         }
         //////////////////////////////////////////////////////////////
@@ -201,26 +284,37 @@ int main() {
         gameLogicWithColors();
 
         // Clear screen
-        window.clear();
+        window.clear(BGColor);
 
          // draw backgrounds according to current game state
         switch(currentState) {
 
             case mainPlay:
-                window.draw(main_play);
+                window.draw(txtMainPlay);
                 // draw the buttons/game board
-                for (int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { window.draw(board[x][y]); } }
+                for (int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { window.draw(board[x][y]); }}
                 break;
 
             case gameOver:
-                window.draw(game_over);
+            // wait a lil to display
+                clock.restart();
+                while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
+                window.draw(txtGameOver);
+                window.draw(txtInfo);
                 break;
 
             case youWin:
-                window.draw(you_win);
+                clock.restart();
+                while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
+                window.draw(txtWin);
+                window.draw(txtInfo);
                 break;
 
             case itsADraw:
+                clock.restart();
+                while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
+                window.draw(txtDraw);
+                window.draw(txtInfo);
                 break;
         }
 
