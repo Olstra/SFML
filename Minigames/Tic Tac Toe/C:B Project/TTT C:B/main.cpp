@@ -1,7 +1,7 @@
 /** NOTES
 
 NEW:
--implement game delay
+-implemented game delay
 
 BUGS:
 -logic still kinda buggy
