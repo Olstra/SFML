@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1548251898 source:/home/oliver/Documents/C++ Projects/SFML/Effects/Matrix Rain/main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+
