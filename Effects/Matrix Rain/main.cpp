@@ -1,3 +1,10 @@
+/**
+TODOs:
+- implement random white character
+
+*/
+
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -10,6 +17,8 @@ int main() {
     const int windowH = 1500;
     const int fontSize = 50;
 
+    Clock clock;    // start clock
+
     // Create the main window
     RenderWindow window(VideoMode(windowW, windowH), "OLIVER CODES MATRIX RAIN", Style::Titlebar | Style::Close);
 
@@ -17,44 +26,37 @@ int main() {
     Font font;
     if(!font.loadFromFile("media/matrix_code.ttf")){ std::cout<<"ERROR: couldn't load font"<<std::endl; return -1; }
 
-    // define the charachters we'll be using (for testing)
-    sf::String chars[] = {"a", "b", "c", "d", "e", "1", "2", "3", "4"};
-    //chars[0].setFillColor(Color::Green);
-    int tempNrs = 9;
+    // GENERATE the SYMBOLS we'll be using
 
+    int nrOfSymbols = 52;
+    sf::String chars[nrOfSymbols];
 
-    // create arra of size of length of windows to save chars in
+    for(int i = 0; i < nrOfSymbols; i++){
+        chars[i] = (char)(nrOfSymbols + i);
+    }
+
+    // create array of size of length of windows to save chars in
     const int lineLength = (windowH/fontSize)+2;    // +2 so line fills up entire screen
     const int nrOfLines = windowW/fontSize;
+    Text textLines[nrOfLines][lineLength];  // here we'll save all lines that will be displayed in the window
 
-    // Create code lines
-    sf::String line;
+    // Create code lines //////////////////////////////////////////////////////////////////////////////////////////
 
     srand(time(0)); // start random seed
 
     Text baseText("", font, fontSize);
-    baseText.setFillColor(Color::Black);
-    Text textLines[nrOfLines][lineLength];  // here we'll save all lines that will be displayed in the window
+    baseText.setFillColor(Color::Black); // default starting color of char = "hidden char"
 
     int temp;
     for(int k = 0; k < nrOfLines; k++) {
         for(int i = 0; i < lineLength; i++) {
-            line = "";
-            temp = rand() % (tempNrs-1);
 
+            temp = rand() % (nrOfSymbols-1);    // choose random symbol
             textLines[k][i] = baseText;
-
-            line += chars[temp];
-            line += "\n";
-
-            textLines[k][i].setString(line);
-            textLines[k][i].setPosition(k*fontSize, i*fontSize);
+            textLines[k][i].setString(chars[temp]);
+            textLines[k][i].setPosition(k*fontSize, i*fontSize); // position each slot accross the window
         }
     }
-
-    //int idx = 0;
-    //int speed = 100; // "milliseconds"
-    Clock clock;
 
 
     // select random starting positions
@@ -65,17 +67,22 @@ int main() {
     int maxSpeed = 100;
 
     // create random positions, random speeds
+    int randWhites[nrOfLines];
     for(int i = 0; i < nrOfLines; i++) {
         randPos[i] = rand() % (lineLength-1);
         randSpeed[i] = minSpeed + rand() % ((maxSpeed+1) - minSpeed);
     }
+
 
     // every char has its own changing speed
 
     int minSpeed2 = 100;  // are actually the -time- we wait to turn a char green in milliseconds
     int maxSpeed2 = 1000;
 
-    int charSpeed[nrOfLines][lineLength];
+    int minSpeed3 = 1000;  // are actually the -time- we wait to turn a char green in milliseconds
+    int maxSpeed3 = 10000;
+
+    int charSpeed[nrOfLines][lineLength]; // if 0 turn green if 1 turn black
     for(int k = 0; k < nrOfLines; k++) {
         for(int i = 0; i < lineLength; i++) {
             charSpeed[k][i] = minSpeed2 + rand() % ((maxSpeed2+1) - minSpeed2);
@@ -83,7 +90,9 @@ int main() {
     }
 
 
+
 	// Start the game loop //////////////////////////////////////////////////////////////////////////////////////////////////////
+
     while (window.isOpen()) {
         // Process events
         Event event;
@@ -97,31 +106,39 @@ int main() {
 
 
         // change attributes of symbols
-        int tempF = clock.getElapsedTime().asMilliseconds();
+        int currentTime = clock.getElapsedTime().asMilliseconds();
 
+        // go through all lines
         for(int i = 0; i < nrOfLines; i++) {
 
-            if((tempF % randSpeed[i]) == 0) {
+
+            if((currentTime % randSpeed[i]) == 0) {
 
                 if(randPos[i] < lineLength) {
-                    textLines[i][randPos[i]].setFillColor(Color::Green);
+
+                    if(textLines[i][randPos[i]].getFillColor() == Color::Black) {
+                        textLines[i][randPos[i]].setFillColor(Color::Green);
+                    }
+                    else { textLines[i][randPos[i]].setFillColor(Color::Black); }
+
                     randPos[i]++;
                 }
                 else{ randPos[i] = 0; }
             }
-
         }
+
 
 
         // Draw
         for (int k=0;k < nrOfLines;k++) { for(int i=0;i < lineLength;i++) {
 
-            if(tempF % charSpeed[k][i] == 0) {
-                temp = rand() % (tempNrs-1);
+            // change displayed symbol randomly
+            if(currentTime % charSpeed[k][i] == 0) {
+                temp = rand() % (nrOfSymbols-1);
                 textLines[k][i].setString(chars[temp]);
             }
 
-            window.draw(textLines[k][i]);
+            window.draw(textLines[k][i]);   // draw every symbol
 
         } }
 
