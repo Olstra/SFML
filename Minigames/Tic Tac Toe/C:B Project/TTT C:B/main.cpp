@@ -1,22 +1,22 @@
 /** NOTES
 
+TODOS:
+X implement lag for AI
+X show last move
+X implement game modus menu
+- put all text entities into array and loop to set origin
+
 NEW:
-- implemented game delay
-- nicer GUI
+- Play vs friend
+- smart PC moves instead of random
 
 BUGS:
 -
 
-TODOS:
--
-
 FIXED/DONE:
-- bug if everything is clicked
-- make init() function
-- what happens when draw
-- nicer display of game board/buttons in middle
-- change either esc with 'x' or change grpahic =>none is necessary
-- logic is the same as coloring of buttons
+X implement lag for AI
+X make smart AI
+
 */
 
 #include <SFML/Graphics.hpp>
@@ -30,68 +30,91 @@ bool playerTurn;
 int turnsTaken;
 
 // GUI COLORS
-Color startColor(0, 30, 175);
+Color startColor(255, 255, 255);
 Color playerColor(255, 70, 65);
 Color AIColor(60, 150, 255);
-Color BGColor(35, 30, 65);
+Color BGColor(10, 10, 10);
 
 // create game board 3x3
 sf::RectangleShape board[3][3];
 
 // different game states used to display according background
 enum GameState {
-    mainPlay, gameOver, youWin, itsADraw
+    mainPlay, gameOver, youWin, itsADraw, player02Wins, player02Loses, gameMenu
 }currentState;  // define current state of the game
 
-void gameLogicWithColors () {
-    // count how manx boxes have been clicked
-    int tempCounter = 0;
-    for(int i = 0; i <3; i++) { for(int j = 0; j < 3; j++) {
-        if(board[i][j].getFillColor() != startColor) { tempCounter++;  } } }
-        std::cout << tempCounter << std::endl;
+enum GameModus {
+    vsDumbAI, vsSmartAI, vsFriend
+}gameModus;
 
-    // if counter >= 3 check if someone has won
-    if( tempCounter >= 3) {
+void gameLogicWithColors () {
+
+    // first check game modus to display correct winning/losing screens
+    GameState player01Loses, player01Wins;
+    switch(gameModus) {
+        case vsFriend:
+        player01Wins = player02Loses;
+        player01Loses = player02Wins;
+        break;
+
+        default:
+        player01Wins = youWin;
+        player01Loses = gameOver;
+        break;
+
+    }
+
+    // if >= 3 moves have been made check if someone has won
+    if( turnsTaken >= 3) {
         // check top to bottm side to side
         for(int i = 0; i < 3; i++) {
             // check top to bottom
             if(board[i][0].getFillColor() == board[i][1].getFillColor() && board[i][1].getFillColor() == board[i][2].getFillColor()) {
-                if(board[i][0].getFillColor() == playerColor) { currentState = youWin; return; }
-                else if (board[i][0].getFillColor() == AIColor) { currentState = gameOver; return; }
+                if(board[i][0].getFillColor() == playerColor) { currentState = player01Wins; return; }
+                else if (board[i][0].getFillColor() == AIColor) { currentState = player01Loses; return; }
             }
             // check for win from left to right
             else if(board[0][i].getFillColor() == board[1][i].getFillColor() && board[1][i].getFillColor() == board[2][i].getFillColor()) {
-                if(board[0][i].getFillColor() == playerColor) { currentState = youWin; return; }
-                else if (board[0][i].getFillColor() == AIColor) { currentState = gameOver; return; }
+                if(board[0][i].getFillColor() == playerColor) { currentState = player01Wins; return; }
+                else if (board[0][i].getFillColor() == AIColor) { currentState = player01Loses; return; }
             }
         }
 
         // check the cross "X"
         // from Top left to Bottom right: [0][0] == [1][1] == [2][2]
         if( board[0][0].getFillColor()  == board[1][1].getFillColor() && board[1][1].getFillColor() == board[2][2].getFillColor() ) {
-            if(board[0][0].getFillColor() == playerColor) { currentState = youWin; return; }
-            else if (board[0][0].getFillColor() == AIColor) { currentState = gameOver; return; }
+            if(board[0][0].getFillColor() == playerColor) { currentState = player01Wins; return; }
+            else if (board[0][0].getFillColor() == AIColor) { currentState = player01Loses; return; }
         }
         // from Bottom left to Top right: [0][2] == [1][1] == [2][0]
         if( board[0][2].getFillColor()  == board[1][1].getFillColor()  &&  board[1][1].getFillColor() == board [2][0].getFillColor()  ) {
-            if(board[0][2].getFillColor() == playerColor) { currentState = youWin; return; }
-            else if (board[0][2].getFillColor() == AIColor) { currentState = gameOver; return; }
+            if(board[0][2].getFillColor() == playerColor) { currentState = player01Wins; return; }
+            else if (board[0][2].getFillColor() == AIColor) { currentState = player01Loses; return; }
         }
     }
 
     // if noone has won its a draw
-    if(tempCounter >= 9){ currentState = itsADraw; }
+    if(turnsTaken >= 9){ currentState = itsADraw; }
 
 }
 
-// AI chooses a random button
-sf::Vector2i AILogic() {
+void randAIMove() {
+    // AI chooses a random button
 
     sf::Vector2i selectedButton;
-    selectedButton.x = rand() % 3;
-    selectedButton.y = rand() % 3;
+    // AI chooses its button
+    do {
+        selectedButton.x = rand() % 3;
+        selectedButton.y = rand() % 3;
+    }while (board[selectedButton.x][selectedButton.y].getFillColor() != startColor);
 
-    return selectedButton;
+    board[selectedButton.x][selectedButton.y].setFillColor(AIColor);
+
+    playerTurn = true;
+    turnsTaken++;
+
+    return;
+
 }
 
 void placeButtons(sf::RectangleShape baseButton) {
@@ -108,7 +131,7 @@ void placeButtons(sf::RectangleShape baseButton) {
     }
 
     // set position of buttons = #
-    int offset = windowW/4;
+    int offset = windowW/5;
 
     // middle button goes on center
     board[1][1].setPosition(windowW/2, windowH/2);
@@ -141,12 +164,90 @@ void init() {
 
     // define how the buttons should look
     RectangleShape baseButton;
-    baseButton.setSize(Vector2f(windowW/5, windowH/5));
+    baseButton.setSize(Vector2f(windowW/7, windowH/7));
     baseButton.setFillColor(startColor);
 
     placeButtons(baseButton);
 
 }
+
+void player01Move(int x, int y) {
+
+    board[x][y].setFillColor(playerColor); // change color of the button that was clicked
+    playerTurn = false;
+    turnsTaken++;
+
+}
+
+void player02Move(int x, int y) {
+
+    board[x][y].setFillColor(AIColor); // change color of the button that was clicked
+    playerTurn = true;
+    turnsTaken++;
+
+}
+
+void smartAIMove() {
+
+    // check if player has 2 boxes next to each other, then 'block' the third one
+
+    if(turnsTaken >= 3) {
+
+        for(int y = 0; y < 3; y++) {
+            // check for almost win from LEFT TO RIGHT
+            if(board[0][y].getFillColor() == playerColor && board[1][y].getFillColor() == playerColor) {
+                if(board[2][y].getFillColor() == startColor) { board[2][y].setFillColor(AIColor); return; }
+            }
+            else if(board[1][y].getFillColor() == playerColor && board[2][y].getFillColor() == playerColor) {
+                if(board[0][y].getFillColor() == startColor) { board[0][y].setFillColor(AIColor); return; }
+            }
+            else if(board[0][y].getFillColor() == playerColor && board[2][y].getFillColor() == playerColor) {
+                if(board[1][y].getFillColor() == startColor) { board[1][y].setFillColor(AIColor); return; }
+            }
+
+            // check for almost win from TOP TO BOTTOM
+            else if(board[y][0].getFillColor() == playerColor && board[y][1].getFillColor() == playerColor) {
+                if(board[y][2].getFillColor() == startColor) { board[y][2].setFillColor(AIColor); return; }
+            }
+            else if(board[y][1].getFillColor() == playerColor && board[y][2].getFillColor() == playerColor) {
+                if(board[y][0].getFillColor() == startColor) { board[y][0].setFillColor(AIColor); return; }
+            }
+            else if(board[y][0].getFillColor() == playerColor && board[y][2].getFillColor() == playerColor) {
+                if(board[y][1].getFillColor() == startColor) { board[y][1].setFillColor(AIColor); return; }
+            }
+        }
+
+        // check DIAGONAL
+        if(board[0][0].getFillColor() == playerColor && board[1][1].getFillColor() == playerColor) {
+            if(board[2][2].getFillColor() == startColor) { board[2][2].setFillColor(AIColor); return; }
+        }
+        else if(board[1][1].getFillColor() == playerColor && board[2][2].getFillColor() == playerColor) {
+            if(board[0][0].getFillColor() == startColor) { board[0][0].setFillColor(AIColor); return; }
+        }
+        else if(board[0][0].getFillColor() == playerColor && board[2][2].getFillColor() == playerColor) {
+            if(board[1][1].getFillColor() == startColor) { board[1][1].setFillColor(AIColor); return; }
+        }
+
+        if(board[0][2].getFillColor() == playerColor && board[1][1].getFillColor() == playerColor) {
+            if(board[2][0].getFillColor() == startColor) { board[2][0].setFillColor(AIColor); return; }
+        }
+        else if(board[1][1].getFillColor() == playerColor && board[2][0].getFillColor() == playerColor) {
+            if(board[0][2].getFillColor() == startColor) { board[0][2].setFillColor(AIColor); return; }
+        }
+        else if(board[0][2].getFillColor() == playerColor && board[2][0].getFillColor() == playerColor) {
+            if(board[1][1].getFillColor() == startColor) { board[1][1].setFillColor(AIColor); return; }
+        }
+
+    }
+
+    // default if no smart move possible
+    randAIMove();
+
+    playerTurn = true;
+    turnsTaken++;
+
+}
+
 
 
 int main() {
@@ -161,60 +262,71 @@ int main() {
 
     const int fontSize = 100;
 
-    // create display text (for different game states)
+    // create display TEXT (for different game states & game info)
 
-    Text txtMainPlay("CLICK ON A BOX TO SELECT IT", font, fontSize/2);
-    txtMainPlay.setStyle(Text::Italic);
-    txtMainPlay.setFillColor(Color::White);
+    std::string textText[] = {"IT'S A DRAW...?!", "YOU WIN!\n\t:-)", "GAME OVER", "PLAYER 01 WINS!\n\t:-D", "PLAYER 02 WINS!\n\tB-)",
+    "CLICK ON A BOX TO SELECT IT", "HIT ENTER TO PLAY AGAIN", "select game mode:", "VS COMPUTER", "PLAY WITH FRIEND", "Tic Tac Toe"};
 
-    Text txtGameOver("GAME OVER", font, fontSize);
-    txtGameOver.setStyle(Text::Underlined | Text::Bold);
-    txtGameOver.setFillColor(Color::Red);
+    Text textes[11];
+    FloatRect tempRect;
 
-    Text txtWin("YOU WIN!\n\t:-)", font, fontSize);
-    txtWin.setStyle(Text::Bold);
-    txtWin.setFillColor(Color::Green);
+    for(int i = 0; i < 11; i++) {
+        textes[i].setString(textText[i]);
+        textes[i].setFont(font);
+    }
 
-    Text txtDraw("IT'S A DRAW...?!", font, fontSize);
-    txtDraw.setStyle(Text::Bold);
-    txtDraw.setFillColor(Color::White);
+    for(int i = 0; i < 5; i++) {
+        textes[i].setCharacterSize(fontSize);
+        tempRect = textes[i].getLocalBounds();
+        textes[i].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+        textes[i].setPosition(windowW/2, windowH/2);
+        // winning screen = green
+        if(i == 1 || i == 3 || i == 4) { textes[i].setFillColor(Color::Green); }
+        else if(i == 4) { textes[i].setFillColor(Color::Red); }
+    }
 
-    Text txtInfo("HIT ENTER TO PLAY AGAIN", font, fontSize/2);
-    txtInfo.setStyle(Text::Italic);
-    txtInfo.setFillColor(Color::White);
+    for (int i = 5; i < 10; i++) { textes[i].setCharacterSize(fontSize/3); }
 
-    // set positions of text
+    tempRect = textes[5].getLocalBounds();
+    textes[5].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[5].setPosition(windowW/2, windowH/15*14); // "CLICK ON A BOX TO SELECT IT"
 
-    // display tutorial & info text on bottom of window
-    FloatRect tempRect = txtMainPlay.getLocalBounds();
-    txtMainPlay.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    txtMainPlay.setPosition(windowW/2, windowH/15*14);
+    tempRect = textes[6].getLocalBounds();
+    textes[6].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[6].setPosition(windowW/2, windowH/15*14); // "HIT ENTER TO PLAY AGAIN"
 
-    tempRect = txtInfo.getLocalBounds();
-    txtInfo.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    txtInfo.setPosition(windowW/2, windowH/15*14);
+    tempRect = textes[7].getLocalBounds();
+    textes[7].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[7].setPosition(windowW/2, windowH/2); // "select game mode:"
 
-    // other text will be displayed in middle of window
-    tempRect = txtDraw.getLocalBounds();
-    txtDraw.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    txtDraw.setPosition(windowW/2, windowH/2);
+    tempRect = textes[8].getLocalBounds();
+    textes[8].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[8].setPosition(windowW/2, windowH*0.65); // "VS COMPUTER"
+    textes[8].setFillColor(Color::Yellow);
 
-    tempRect = txtGameOver.getLocalBounds();
-    txtGameOver.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    txtGameOver.setPosition(windowW/2, windowH/2);
+    tempRect = textes[9].getLocalBounds();
+    textes[9].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[9].setPosition(windowW/2, windowH*0.75); // "PLAY WITH FRIEND"
+    textes[9].setFillColor(Color::Yellow);
 
-    tempRect = txtWin.getLocalBounds();
-    txtWin.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    txtWin.setPosition(windowW/2, windowH/2);
+    tempRect = textes[10].getLocalBounds();
+    textes[10].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[10].setPosition(250, 100); // "Tic Tac Toe"
+    textes[10].setCharacterSize(fontSize);
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Clock for ingame delays
+    // TIME management for ingame delays
     Clock clock;
-    Time delay = seconds(0.5);
+    Time delay = milliseconds(1500);
+
+    sf::Vector2i mousePos;
+
 
     // Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(); // initialize the game for the first time
+    currentState = gameMenu; // per default we start with game menu
     while (window.isOpen()) {
+
         // Process events
         Event event;
         while (window.pollEvent(event)) {
@@ -226,9 +338,7 @@ int main() {
 
                         case Keyboard::Return: // changed name in from 'enter' in windows
                             // player chooses "play (again)"
-                            if(currentState != mainPlay) {
-                                init(); // reset the games
-                            }
+                            if(currentState != mainPlay) { init(); }
                             break;
 
                         case Keyboard::Escape:
@@ -236,84 +346,122 @@ int main() {
                             break;
 
                         default: break;
+
                     }
-            }
-        }
 
+                // Check for left mouse click ////////////////////////////
+                case Event::MouseButtonPressed:
 
-        // Check for left mouse click ////////////////////////////
-        // it's the players turn
-        if(playerTurn) {
-            if (Mouse::isButtonPressed(Mouse::Left)) {
-                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
-                        if ( board[x][y].getGlobalBounds().contains
-                            (Mouse::getPosition(window).x, Mouse::getPosition(window).y) ) { // get the current position of the mouse inside the window
-                                if(board[x][y].getFillColor() == startColor) { // meaning this is the first time we click on the button
-                                    board[x][y].setFillColor(playerColor); // change color of the button that was clicked
-                                    playerTurn = false;
-                                    turnsTaken++;
+                    if (Mouse::isButtonPressed(Mouse::Left)) {
+                        if(currentState == gameMenu) {
+                            mousePos = Mouse::getPosition(window); //get coordinates of mouse position
+
+                            if(textes[8].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsSmartAI; }
+                            else if(textes[9].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsFriend; }
+
+                            currentState = mainPlay;
+                            init();
+                        }
+
+                        else if(currentState == mainPlay) {
+                            if(playerTurn) {
+                                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                                    if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
+                                        // check if button is not selected
+                                        if(board[x][y].getFillColor() == startColor) { player01Move(x, y); }
+                                    }
+                                }}
+                            }
+
+                            // it's AIs turn
+                            if(turnsTaken < 9 && !playerTurn) {
+                                switch(gameModus) {
+                                    case vsDumbAI:
+        //                            randAIMove();
+                                        break;
+                                    case vsSmartAI:
+                                        smartAIMove();
+                                        break;
+                                    case vsFriend:
+                                        for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                                            if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
+                                                // check if button is not selected
+                                                if(board[x][y].getFillColor() == startColor) { player02Move(x, y); }
+                                            }
+                                        }}
+                                        break;
                                 }
+
+                            }
                         }
                     }
-                }
+                    break;
             }
         }
-        // it's AIs turn
-        if(turnsTaken<9) {
-            if(!playerTurn) {
-                Vector2i temp;
-                // AI chooses its button
-                do { temp = AILogic();
-                }while (board[temp.x][temp.y].getFillColor() != startColor); // meaning this is the first time we click on the button
 
-                board[temp.x][temp.y].setFillColor(AIColor);
-                playerTurn = true;
-                turnsTaken++;
 
-            }
-        }
         //////////////////////////////////////////////////////////////
-
-        // run game logic
-        gameLogicWithColors();
 
         // Clear screen
         window.clear(BGColor);
 
-         // draw backgrounds according to current game state
+        clock.restart();
+        // draw backgrounds according to current game state
         switch(currentState) {
 
+            case gameMenu:
+            for(int i = 7; i < 11; i++) { window.draw(textes[i]); }
+                break;
+
             case mainPlay:
-                window.draw(txtMainPlay);
+                window.draw(textes[5]);
                 // draw the buttons/game board
                 for (int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { window.draw(board[x][y]); }}
                 break;
 
-            case gameOver:
-            // wait a lil to display
-                clock.restart();
+            case itsADraw:
+                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
-                window.draw(txtGameOver);
-                window.draw(txtInfo);
+                window.draw(textes[0]);
+                window.draw(textes[6]);
                 break;
 
             case youWin:
-                clock.restart();
+                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
-                window.draw(txtWin);
-                window.draw(txtInfo);
+                window.draw(textes[1]);
+                window.draw(textes[6]);
                 break;
 
-            case itsADraw:
-                clock.restart();
+            case gameOver:
+            // wait a lil to display
+                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
-                window.draw(txtDraw);
-                window.draw(txtInfo);
+                window.draw(textes[2]);
+                window.draw(textes[6]);
                 break;
+
+            case player02Loses:
+               // clock.restart();
+                while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
+                window.draw(textes[3]);
+                window.draw(textes[6]);
+                break;
+
+            case player02Wins:
+                //clock.restart();
+                while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
+                window.draw(textes[4]);
+                window.draw(textes[6]);
+                break;
+
         }
 
         // Update the window
         window.display();
+
+        // run game logic
+        gameLogicWithColors();
     }
 
     return 0;
