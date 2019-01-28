@@ -4,7 +4,7 @@ TODOS:
 X implement lag for AI
 X show last move
 X implement game modus menu
-- put all text entities into array and loop to set origin
+X put all text entities into array and loop to set origin
 
 NEW:
 - Play vs friend
@@ -24,15 +24,15 @@ X make smart AI
 using namespace sf;
 
 // game stuff
-const int windowW = 800;
-const int windowH = 800;
+const int windowW = 1500;
+const int windowH = 1500;
 bool playerTurn;
 int turnsTaken;
 
 // GUI COLORS
 Color startColor(255, 255, 255);
-Color playerColor(255, 70, 65);
-Color AIColor(60, 150, 255);
+Color playerColor(220,20,60);
+Color AIColor(0,191,255);
 Color BGColor(10, 10, 10);
 
 // create game board 3x3
@@ -110,9 +110,6 @@ void randAIMove() {
 
     board[selectedButton.x][selectedButton.y].setFillColor(AIColor);
 
-    playerTurn = true;
-    turnsTaken++;
-
     return;
 
 }
@@ -174,6 +171,7 @@ void init() {
 void player01Move(int x, int y) {
 
     board[x][y].setFillColor(playerColor); // change color of the button that was clicked
+
     playerTurn = false;
     turnsTaken++;
 
@@ -182,6 +180,7 @@ void player01Move(int x, int y) {
 void player02Move(int x, int y) {
 
     board[x][y].setFillColor(AIColor); // change color of the button that was clicked
+
     playerTurn = true;
     turnsTaken++;
 
@@ -189,8 +188,10 @@ void player02Move(int x, int y) {
 
 void smartAIMove() {
 
-    // check if player has 2 boxes next to each other, then 'block' the third one
+    playerTurn = true;
+    turnsTaken++;
 
+    // check if player has 2 boxes next to each other, then 'block' the third one
     if(turnsTaken >= 3) {
 
         for(int y = 0; y < 3; y++) {
@@ -243,9 +244,6 @@ void smartAIMove() {
     // default if no smart move possible
     randAIMove();
 
-    playerTurn = true;
-    turnsTaken++;
-
 }
 
 
@@ -260,7 +258,7 @@ int main() {
     Font font;
     if(!font.loadFromFile("media/GojiraBlack.ttf")) { std::cout << "ERROR: font could not be loaded." << std::endl; return -1; }
 
-    const int fontSize = 100;
+    const int fontSize = 200;
 
     // create display TEXT (for different game states & game info)
 
@@ -317,7 +315,7 @@ int main() {
 
     // TIME management for ingame delays
     Clock clock;
-    Time delay = milliseconds(1500);
+    Time delay = milliseconds(1250);
 
     sf::Vector2i mousePos;
 
@@ -326,7 +324,6 @@ int main() {
 
     currentState = gameMenu; // per default we start with game menu
     while (window.isOpen()) {
-
         // Process events
         Event event;
         while (window.pollEvent(event)) {
@@ -351,54 +348,60 @@ int main() {
 
                 // Check for left mouse click ////////////////////////////
                 case Event::MouseButtonPressed:
-
                     if (Mouse::isButtonPressed(Mouse::Left)) {
-                        if(currentState == gameMenu) {
-                            mousePos = Mouse::getPosition(window); //get coordinates of mouse position
+                        switch (currentState) {
+                            case gameMenu:
+                                mousePos = Mouse::getPosition(window); //get coordinates of mouse position
 
-                            if(textes[8].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsSmartAI; }
-                            else if(textes[9].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsFriend; }
+                                if(textes[8].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsSmartAI; }
+                                else if(textes[9].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsFriend; }
 
-                            currentState = mainPlay;
-                            init();
-                        }
+                                currentState = mainPlay;
+                                init();
+                            break;
 
-                        else if(currentState == mainPlay) {
-                            if(playerTurn) {
-                                for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
-                                    if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
-                                        // check if button is not selected
-                                        if(board[x][y].getFillColor() == startColor) { player01Move(x, y); }
-                                    }
-                                }}
-                            }
+                            case mainPlay:
+                                if(playerTurn) {
+                                    for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                                        if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
+                                            // check if button is not selected
+                                            if(board[x][y].getFillColor() == startColor) { player01Move(x, y); }
+                                        }
+                                    }}
 
-                            // it's AIs turn
-                            if(turnsTaken < 9 && !playerTurn) {
-                                switch(gameModus) {
-                                    case vsDumbAI:
-        //                            randAIMove();
-                                        break;
-                                    case vsSmartAI:
-                                        smartAIMove();
-                                        break;
-                                    case vsFriend:
-                                        for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
-                                            if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
-                                                // check if button is not selected
-                                                if(board[x][y].getFillColor() == startColor) { player02Move(x, y); }
-                                            }
-                                        }}
-                                        break;
                                 }
 
-                            }
+                                // it's AIs turn
+                                if(turnsTaken < 9 && !playerTurn) {
+                                    switch(gameModus) {
+                                        case vsDumbAI:
+                                            randAIMove();
+                                            break;
+
+                                        case vsSmartAI:
+                                            smartAIMove();
+                                            break;
+
+                                        case vsFriend:
+                                            for(int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) {
+                                                if (board[x][y].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { // get the current position of the mouse inside the window
+                                                    // check if button is not selected
+                                                    if(board[x][y].getFillColor() == startColor) { player02Move(x, y); }
+                                                }
+                                            }}
+                                            break;
+                                    }
+
+                                }
+
+                            break;
                         }
                     }
                     break;
+
+                    default: break;
             }
         }
-
 
         //////////////////////////////////////////////////////////////
 
@@ -420,36 +423,30 @@ int main() {
                 break;
 
             case itsADraw:
-                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[0]);
                 window.draw(textes[6]);
                 break;
 
             case youWin:
-                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[1]);
                 window.draw(textes[6]);
                 break;
 
             case gameOver:
-            // wait a lil to display
-                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[2]);
                 window.draw(textes[6]);
                 break;
 
             case player02Loses:
-               // clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[3]);
                 window.draw(textes[6]);
                 break;
 
             case player02Wins:
-                //clock.restart();
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[4]);
                 window.draw(textes[6]);
