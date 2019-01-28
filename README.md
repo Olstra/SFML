@@ -1,7 +1,8 @@
 # Games and display effects
 
 Contains the games:
-* snake
+* Snake
+* Tic Tac Toe
 
 
 Effects:
