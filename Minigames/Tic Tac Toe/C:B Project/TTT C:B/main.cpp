@@ -1,10 +1,8 @@
 /** NOTES
 
 TODOS:
-X implement lag for AI
-X show last move
-X implement game modus menu
-X put all text entities into array and loop to set origin
+- implement lag for AI
+- show last move
 
 NEW:
 - Play vs friend
@@ -14,8 +12,9 @@ BUGS:
 -
 
 FIXED/DONE:
-X implement lag for AI
-X make smart AI
+X show last move
+X implement game modus menu
+X put all text entities into array and loop to set origin
 
 */
 
