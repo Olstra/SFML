@@ -1,20 +1,17 @@
 /** NOTES
 
+NEW/FIXED/DONE:
+x zurück zum hauptmenü knopf
+x Play vs friend
+x smart PC moves instead of random
+
 TODOS:
+- CLICK enter to play again
 - implement lag for AI
 - show last move
 
-NEW:
-- Play vs friend
-- smart PC moves instead of random
-
 BUGS:
 -
-
-FIXED/DONE:
-X show last move
-X implement game modus menu
-X put all text entities into array and loop to set origin
 
 */
 
@@ -23,8 +20,8 @@ X put all text entities into array and loop to set origin
 using namespace sf;
 
 // game stuff
-const int windowW = 1500;
-const int windowH = 1500;
+const int windowW = 800;
+const int windowH = 800;
 bool playerTurn;
 int turnsTaken;
 
@@ -182,7 +179,6 @@ void player02Move(int x, int y) {
 
     playerTurn = true;
     turnsTaken++;
-
 }
 
 void smartAIMove() {
@@ -246,7 +242,6 @@ void smartAIMove() {
 }
 
 
-
 int main() {
 
     // SETUP /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,17 +252,17 @@ int main() {
     Font font;
     if(!font.loadFromFile("media/GojiraBlack.ttf")) { std::cout << "ERROR: font could not be loaded." << std::endl; return -1; }
 
-    const int fontSize = 200;
+    const int fontSize = 100;
 
     // create display TEXT (for different game states & game info)
 
     std::string textText[] = {"IT'S A DRAW...?!", "YOU WIN!\n\t:-)", "GAME OVER", "PLAYER 01 WINS!\n\t:-D", "PLAYER 02 WINS!\n\tB-)",
-    "CLICK ON A BOX TO SELECT IT", "HIT ENTER TO PLAY AGAIN", "select game mode:", "VS COMPUTER", "PLAY WITH FRIEND", "Tic Tac Toe"};
+    "CLICK ON A BOX TO SELECT IT", "hit ENTER to play again", "select game mode:", "VS COMPUTER", "PLAY WITH FRIEND", "Tic Tac Toe", "hit ESC for main menu"};
 
-    Text textes[11];
-    FloatRect tempRect;
+    Text textes[12];
+    FloatRect tempRect; // to get local bounds
 
-    for(int i = 0; i < 11; i++) {
+    for(int i = 0; i < 12; i++) {
         textes[i].setString(textText[i]);
         textes[i].setFont(font);
     }
@@ -284,40 +279,58 @@ int main() {
 
     for (int i = 5; i < 10; i++) { textes[i].setCharacterSize(fontSize/3); }
 
+    // "CLICK ON A BOX TO SELECT IT"
     tempRect = textes[5].getLocalBounds();
     textes[5].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[5].setPosition(windowW/2, windowH/15*14); // "CLICK ON A BOX TO SELECT IT"
+    textes[5].setPosition(windowW/2, windowH/15*14);
 
+    // play again text
+    textes[6].setCharacterSize(fontSize/3);
     tempRect = textes[6].getLocalBounds();
     textes[6].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[6].setPosition(windowW/2, windowH/15*14); // "HIT ENTER TO PLAY AGAIN"
+    textes[6].setPosition(windowW*0.3, windowH/15*14);
+    textes[6].setFillColor(Color::Yellow);
 
-    tempRect = textes[7].getLocalBounds();
-    textes[7].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[7].setPosition(windowW/2, windowH/2); // "select game mode:"
-
-    tempRect = textes[8].getLocalBounds();
-    textes[8].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[8].setPosition(windowW/2, windowH*0.65); // "VS COMPUTER"
-    textes[8].setFillColor(Color::Yellow);
-
+    // "PLAY WITH FRIEND"
     tempRect = textes[9].getLocalBounds();
     textes[9].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[9].setPosition(windowW/2, windowH*0.75); // "PLAY WITH FRIEND"
+    textes[9].setPosition(windowW/2, windowH*0.75);
     textes[9].setFillColor(Color::Yellow);
 
+    // return to game menu
+    textes[11].setCharacterSize(fontSize/3);
+    tempRect = textes[11].getLocalBounds();
+    textes[11].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[11].setPosition(windowW*0.75, windowH/15*14); // "CLICK ON A BOX TO SELECT IT"
+    textes[11].setFillColor(Color::Yellow);
+
+    // "select game mode:"
+    tempRect = textes[7].getLocalBounds();
+    textes[7].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[7].setPosition(windowW/2, windowH/2);
+
+    // "VS COMPUTER"
+    tempRect = textes[8].getLocalBounds();
+    textes[8].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[8].setPosition(windowW/2, windowH*0.65);
+    textes[8].setFillColor(Color::Yellow);
+
+    // "PLAY WITH FRIEND"
+    tempRect = textes[9].getLocalBounds();
+    textes[9].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+    textes[9].setPosition(windowW/2, windowH*0.75);
+    textes[9].setFillColor(Color::Yellow);
+
+    // "Tic Tac Toe"
     tempRect = textes[10].getLocalBounds();
     textes[10].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-    textes[10].setPosition(250, 100); // "Tic Tac Toe"
+    textes[10].setPosition(250, 100);
     textes[10].setCharacterSize(fontSize);
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // TIME management for ingame delays
     Clock clock;
-    Time delay = milliseconds(1250);
-
-    sf::Vector2i mousePos;
-
+    Time delay = milliseconds(1100);
 
     // Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -338,7 +351,7 @@ int main() {
                             break;
 
                         case Keyboard::Escape:
-                            window.close();
+                            if(currentState != mainPlay) { currentState = gameMenu; }
                             break;
 
                         default: break;
@@ -348,16 +361,16 @@ int main() {
                 // Check for left mouse click ////////////////////////////
                 case Event::MouseButtonPressed:
                     if (Mouse::isButtonPressed(Mouse::Left)) {
+                   // mousePos = Mouse::getPosition(window);
                         switch (currentState) {
                             case gameMenu:
-                                mousePos = Mouse::getPosition(window); //get coordinates of mouse position
+                                //Vector2i mousePos = Mouse::getPosition(window); //get coordinates of mouse position
+                                if(textes[8].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { gameModus = vsSmartAI; }
+                                else if(textes[9].getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y)) { gameModus = vsFriend; }
 
-                                if(textes[8].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsSmartAI; }
-                                else if(textes[9].getGlobalBounds().contains(mousePos.x, mousePos.y)) { gameModus = vsFriend; }
-
-                                currentState = mainPlay;
                                 init();
-                            break;
+                                break;
+
 
                             case mainPlay:
                                 if(playerTurn) {
@@ -394,6 +407,7 @@ int main() {
                                 }
 
                             break;
+
                         }
                     }
                     break;
@@ -404,11 +418,12 @@ int main() {
 
         //////////////////////////////////////////////////////////////
 
+
         // Clear screen
         window.clear(BGColor);
 
-        clock.restart();
         // draw backgrounds according to current game state
+        clock.restart();
         switch(currentState) {
 
             case gameMenu:
@@ -419,45 +434,48 @@ int main() {
                 window.draw(textes[5]);
                 // draw the buttons/game board
                 for (int x = 0; x < 3; x++) { for (int y = 0; y < 3; y++) { window.draw(board[x][y]); }}
+                gameLogicWithColors();
                 break;
 
             case itsADraw:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[0]);
                 window.draw(textes[6]);
+                window.draw(textes[11]);
                 break;
 
             case youWin:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[1]);
                 window.draw(textes[6]);
+                window.draw(textes[11]);
                 break;
 
             case gameOver:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[2]);
                 window.draw(textes[6]);
+                window.draw(textes[11]);
                 break;
 
             case player02Loses:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[3]);
                 window.draw(textes[6]);
+                window.draw(textes[11]);
                 break;
 
             case player02Wins:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
                 window.draw(textes[4]);
                 window.draw(textes[6]);
+                window.draw(textes[11]);
                 break;
 
         }
 
         // Update the window
         window.display();
-
-        // run game logic
-        gameLogicWithColors();
     }
 
     return 0;
