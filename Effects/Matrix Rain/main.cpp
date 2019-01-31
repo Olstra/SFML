@@ -2,6 +2,10 @@
 TODOs:
 - implement random white character
 
+
+Notes:
+- for optimization you can draw only the green chars to the window
+- dimensions made on a 4k display
 */
 
 
@@ -15,13 +19,13 @@ int main() {
 
     const int windowW = 800;
     const int windowH = 800;
-    const int fontSize = 30;
+    const int fontSize = 32;
 
     Clock clock;    // Time management
     int currentTime;
 
     // define colors to be used
-    Color WhiteGreen(205, 250, 210);
+    //Color WhiteGreen(205, 250, 210);
 
     // Create the main window
     RenderWindow window(VideoMode(windowW, windowH), "OLIVER CODES MATRIX RAIN", Style::Titlebar | Style::Close);
@@ -35,12 +39,11 @@ int main() {
     int nrOfSymbols = 32;
     sf::String chars[nrOfSymbols];
 
-    for(int i = 0; i < nrOfSymbols; i++){
-        chars[i] = (char)(nrOfSymbols + i);
-    }
+    for(int i = 0; i < nrOfSymbols; i++){ chars[i] = (char)(nrOfSymbols + i); }
 
     // create array of size of length of windows to save chars in
-    const int lineLength = (windowH/fontSize);    // +2 so line fills up entire screen
+
+    const int lineLength = (windowH/fontSize)+2;    // +2 so line fills up entire screen
     const int nrOfLines = windowW/fontSize;
     Text textLines[nrOfLines][lineLength];  // here we'll save all lines that will be displayed in the window
 
@@ -63,8 +66,8 @@ int main() {
     int randPos[nrOfLines];
     int randSpeed[nrOfLines];
 
-    int minSpeed = 10;  // are actually the -time- we wait to turn a char green in milliseconds
-    int maxSpeed = 100;
+    int minSpeed = 100;  // are actually the -time- we wait to turn a char green in milliseconds
+    int maxSpeed = 1000;
 
     // create random positions, random speeds
     for(int i = 0; i < nrOfLines; i++) {
@@ -74,16 +77,10 @@ int main() {
 
     // every char has its own changing speed to change to another rand char
 
-    int minSpeed2 = 100;  // are actually the -time- we wait to turn a char green in milliseconds
-    int maxSpeed2 = 1000;
-
-    int minSpeed3 = 1000;
-    int maxSpeed3 = 10000;
-
     int charSpeed[nrOfLines][lineLength];
     for(int k = 0; k < nrOfLines; k++) {
         for(int i = 0; i < lineLength; i++) {
-            charSpeed[k][i] = minSpeed2 + rand() % ((maxSpeed2+1) - minSpeed2);
+            charSpeed[k][i] = minSpeed + rand() % ((maxSpeed+1) - minSpeed);
         }
     }
 
@@ -107,35 +104,25 @@ int main() {
 
 
         // change attributes of symbols ////////////////////////////////////////////////////////////////////////////////////////
+
         currentTime = clock.getElapsedTime().asMilliseconds();
 
         // go through all lines
         for(int i = 0; i < nrOfLines; i++) {
 
-            // if char was black turn it green, otherwise hide char again (=turn black)
-            if(textLines[i][randPos[i]].getFillColor() == Color::Black) {
-                textLines[i][randPos[i]].setFillColor(Color::Green);
-            }
-            else { textLines[i][randPos[i]].setFillColor(Color::Black); }
-
-
             if((currentTime % randSpeed[i]) == 0) {
 
+                if(randPos[i] < lineLength) {   // check that we don't get IOB
 
-
-                if(randPos[i] < lineLength) {
-
-                    textLines[i][randPos[i]].setFillColor(WhiteGreen);
-
-    //                    // if char was black turn it green, otherwise hide char again (=turn black)
-    //                    if(textLines[i][randPos[i]].getFillColor() == WhiteGreen) {
-    //                        textLines[i][randPos[i]].setFillColor(Color::Green);
-    //                    }
-    //                    else { textLines[i][randPos[i]].setFillColor(Color::Black); }
+                    // if char was black turn it green, otherwise hide char again (=turn black)
+                    if(textLines[i][randPos[i]].getFillColor() == Color::Black) {
+                        textLines[i][randPos[i]].setFillColor(Color::Green);
+                    }
+                    else { textLines[i][randPos[i]].setFillColor(Color::Black); }
 
                     randPos[i]++;
                 }
-                else{ randPos[i] = rand() % (lineLength-1); } // check that we don't get IOB
+                else{ randPos[i] = 0; }  // oder: rand() % (lineLength-1); }
 
             }
 
@@ -143,17 +130,14 @@ int main() {
 
 
         // Draw every slot
-        for (int k=0;k < nrOfLines;k++) { for(int i=0;i < lineLength;i++) {
+        for (int k = 0; k < nrOfLines; k++) { for(int i = 0; i < lineLength; i++) {
 
             // change displayed symbol randomly
-            if(currentTime % charSpeed[k][i] == 0 && textLines[k][i].getFillColor() == WhiteGreen) {
-                textLines[k][i].setString(chars[rand() % (nrOfSymbols-1)]);
-            }
+            if(currentTime % charSpeed[k][i] == 0) { textLines[k][i].setString(chars[rand() % (nrOfSymbols-1)]); }
 
-            window.draw(textLines[k][i]);   // draw every symbol
+            window.draw(textLines[k][i]);   // draw characters
 
         } }
-
 
         // Update the window
         window.display();
