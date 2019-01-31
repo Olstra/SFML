@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+
 int main() {
 
     const int windowW = 1000;

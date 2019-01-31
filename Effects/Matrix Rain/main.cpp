@@ -29,6 +29,7 @@ int main() {
 
     // Create the main window
     RenderWindow window(VideoMode(windowW, windowH), "OLIVER CODES MATRIX RAIN", Style::Titlebar | Style::Close);
+    window.setFramerateLimit(60);
 
     // load font
     Font font;
@@ -66,8 +67,8 @@ int main() {
     int randPos[nrOfLines];
     int randSpeed[nrOfLines];
 
-    int minSpeed = 100;  // are actually the -time- we wait to turn a char green in milliseconds
-    int maxSpeed = 1000;
+    int minSpeed = 1;  // are actually the -time- we wait to turn a char green in milliseconds
+    int maxSpeed = 80;
 
     // create random positions, random speeds
     for(int i = 0; i < nrOfLines; i++) {
@@ -76,6 +77,9 @@ int main() {
     }
 
     // every char has its own changing speed to change to another rand char
+
+    int minSpeed2 = 10;  // are actually the -time- we wait to turn a char green in milliseconds
+    int maxSpeed2 = 300;
 
     int charSpeed[nrOfLines][lineLength];
     for(int k = 0; k < nrOfLines; k++) {

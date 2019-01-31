@@ -1,26 +1,43 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+using namespace sf;
+
 int main() {
 
-    const int windowW = 1000;
-    const int windowH = 1000;
+    const int windowW = 800;
+    const int windowH = 800;
 
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode(windowW, windowH), "OLIVER CODES ...", sf::Style::Titlebar | sf::Style::Close);
+    RenderWindow window(sf::VideoMode(windowW, windowH), "OLIVER CODES ...", sf::Style::Titlebar | sf::Style::Close);
 
     // Load a sprite to display
-    sf::Texture texture;
+    Texture texture;
     if (!texture.loadFromFile("cb.bmp")){ std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    sf::Sprite sprite(texture);
+    Sprite sprite(texture);
 
 	// Start the game loop
     while (window.isOpen()) {
         // Process events
-        sf::Event event;
+        Event event;
         while (window.pollEvent(event)) {
-            // Close window : exit
-            if (event.type == sf::Event::Closed) { window.close(); }
+            switch(event.type) {
+                case Event::Closed: window.close(); break;
+
+                case Event::KeyPressed:
+                    switch (event.key.code) {
+
+                        case Keyboard::Enter:
+                            // ...
+                            break;
+
+                        case Keyboard::Escape:
+                            window.close();
+                            break;
+
+                        default: break;
+                    }
+            }
         }
 
         // Clear screen
