@@ -5,7 +5,6 @@ TODOs:
 
 Notes:
 - for optimization you can draw only the green chars to the window
-- dimensions made on a 4k display
 */
 
 
