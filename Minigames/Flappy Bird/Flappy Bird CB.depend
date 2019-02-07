@@ -1,3 +1,22 @@
 # depslib dependency file v1.0
-1548883584 source:/home/oliver/Documents/SFML/Minigames/Flappy Bird/flappyBirdStruct.cpp
+1548955930 source:/home/oliver/Documents/SFML/Minigames/Flappy Bird/flappyBirdStruct.cpp
+
+1549573899 source:/home/oliver/Documents/SFML/Minigames/Flappy Bird/main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	"Pipes.h"
+	"Bird.h"
+
+1549552804 /home/oliver/Documents/SFML/Minigames/Flappy Bird/include/Pipe.h
+	<SFML/Graphics.hpp>
+	<iostream>
+
+1549553100 source:/home/oliver/Documents/SFML/Minigames/Flappy Bird/src/Pipe.cpp
+
+1549563050 /home/oliver/Documents/SFML/Minigames/Flappy Bird/Pipes.h
+	<SFML/Graphics.hpp>
+	<iostream>
+
+1549571559 /home/oliver/Documents/SFML/Minigames/Flappy Bird/Bird.h
+	<SFML/Graphics.hpp>
 
