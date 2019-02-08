@@ -3,7 +3,7 @@ Bugs:
 -
 
 TODO:
--
+- add score count
 
 Ideas:
 - variate distance of tubes for different game modus
@@ -122,7 +122,6 @@ int main() {
             window.draw( txtGameOver );
 
         }
-
 
         // display drawn stuff
         window.display();

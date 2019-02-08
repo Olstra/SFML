@@ -6,36 +6,26 @@
 
 #include <SFML/Graphics.hpp>
 
+// movement of flappy bird
+int gravity = 60;
+int pushBird = 120;     // jump height of bird
+int jumpDuration = 200;
 
 int flappySize = 40;    // size of the flappy bird
-int gravity = 10;
-int pushBird = 125;     // jump height of bird
-int jumpDuration = 200;
 sf::Clock flappyClock;
-
 sf::Texture textureBird;
-
-int spriteSize = 80; // sprite is a square of 80x80
-
-//if ( !texture.loadFromFile("media/flappy_bird.png") ){ std::cout<< "ERROR: Texture could not be loaded" << std::endl; return -1; }
-//(texture);
-//sprite.setTextureRect( sf::IntRect(0, 0, 80, 80) );
+int spriteSize = 80;    // sprite of flappy bird is a square of 80x80 pixels
 
 
 enum BIRD_STATE { stealth, falling, flying, gameOver };
 
 struct bird {
 
-//    sf::CircleShape shape;
-
     sf::Sprite sprite;
 
     BIRD_STATE state;
 
 }flappyBird;
-
-
-
 
 void initBird( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
@@ -48,8 +38,6 @@ void initBird( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     flappyBird.state = stealth; // default init state
 }
-
-
 
 void birdFly() {
 
@@ -99,5 +87,3 @@ void moveBird( int SCREEN_HEIGHT ) {
     }
 
 }
-
-
