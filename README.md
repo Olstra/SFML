@@ -3,6 +3,7 @@
 Contains the games:
 * Snake
 * Tic Tac Toe
+* Flappy Bird
 
 
 Effects:
