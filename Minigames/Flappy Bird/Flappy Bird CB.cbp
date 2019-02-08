@@ -41,12 +41,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Bird.h" />
 		<Unit filename="Pipes.h" />
-		<Unit filename="cb.bmp" />
-		<Unit filename="flappyBirdStruct.cpp" />
-		<Unit filename="include/Pipe.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/Pipe.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

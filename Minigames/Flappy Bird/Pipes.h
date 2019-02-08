@@ -16,8 +16,8 @@ int antiPipeH = 200;            // distance between pipe top and pipe bottom "LÃ
 sf::Clock pipesClock;
 
 const int NR_OF_PIPES = ( 1200 / PIPE_WIDTH ) / 3; // (screenWidth/PW)/3 => pipe-x-x-pipe-x-x-pipe-...
-static sf::RectangleShape pipes[NR_OF_PIPES];
-static sf::RectangleShape antiPipes[NR_OF_PIPES];
+static sf::RectangleShape pipesTop[NR_OF_PIPES];
+static sf::RectangleShape pipesBottom[NR_OF_PIPES];
 
 
 int randHeight( int SCREEN_HEIGHT ) {
@@ -37,15 +37,19 @@ void initPipes(int SCREEN_WIDTH, int SCREEN_HEIGHT) {
 
     // inititalize pipes
     for ( int i = 0; i < NR_OF_PIPES; i++) {
-        // create pipes
-        pipes[i].setSize(sf::Vector2f(PIPE_WIDTH, SCREEN_HEIGHT));
-        pipes[i].setPosition(SCREEN_WIDTH + (i * distance), 0);
-        pipes[i].setFillColor(sf::Color::Green);
 
-        // create antipipes
-        antiPipes[i].setSize(sf::Vector2f(PIPE_WIDTH, antiPipeH));
-        antiPipes[i].setFillColor(sf::Color::White);
-        antiPipes[i].setPosition(pipes[i].getPosition().x, randHeight( SCREEN_HEIGHT ) );
+        temp = randHeight( SCREEN_HEIGHT );
+
+        // create pipes
+        pipesTop[i].setSize(sf::Vector2f(PIPE_WIDTH, temp));
+        pipesTop[i].setPosition(SCREEN_WIDTH + (i * distance), 0);
+        pipesTop[i].setFillColor(sf::Color::Green);
+
+        // create bottom pipes
+        pipesBottom[i].setSize(sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
+        pipesBottom[i].setPosition(SCREEN_WIDTH + (i * distance), ( temp+antiPipeH ));
+        pipesBottom[i].setFillColor(sf::Color::Green);
+
     }
 
 }
@@ -53,29 +57,30 @@ void initPipes(int SCREEN_WIDTH, int SCREEN_HEIGHT) {
 void drawPipes( sf::RenderWindow& window ) {
 
     for(int i = 0; i < NR_OF_PIPES; i++) {
-        window.draw( pipes[i] );
-        window.draw( antiPipes[i] );
+        window.draw( pipesTop[i] );
+        window.draw( pipesBottom[i] );
     }
 }
 
 void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
+
     int temp;
 
     // move pipes according to ellapsed time
     if( pipesClock.getElapsedTime().asMilliseconds() >= velPipes) {
         for ( int i = 0; i < NR_OF_PIPES; i++) {
 
-            if( pipes[i].getPosition().x >= 0) {
-                temp = pipes[i].getPosition().x - 1;
-                pipes[i].setPosition(sf::Vector2f(temp, 0));
-
-               // setAntiPipePos(antiPipes[i], )
-                //temp = antiPipes[i].getPosition().x - 1;
-                antiPipes[i].setPosition(sf::Vector2f( temp, antiPipes[i].getPosition().y) );
+            if( pipesTop[i].getPosition().x >= 0) {
+                temp = pipesTop[i].getPosition().x - 1;
+                pipesTop[i].setPosition(sf::Vector2f(temp, 0));
+                pipesBottom[i].setPosition(sf::Vector2f(temp, pipesBottom[i].getPosition().y));
             }
             else{
-                pipes[i].setPosition( sf::Vector2f( SCREEN_WIDTH, 0 ) );
-                antiPipes[i].setPosition(pipes[i].getPosition().x, randHeight( SCREEN_HEIGHT ) );
+                temp = randHeight( SCREEN_HEIGHT );
+                pipesTop[i].setSize(sf::Vector2f(PIPE_WIDTH, temp));
+                pipesTop[i].setPosition(SCREEN_WIDTH + (i * distance), 0);
+                pipesBottom[i].setSize(sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
+                pipesBottom[i].setPosition(SCREEN_WIDTH + (i * distance), ( temp+antiPipeH ));
             }
         }
 

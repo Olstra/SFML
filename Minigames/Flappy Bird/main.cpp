@@ -3,20 +3,12 @@ Bugs:
 -
 
 TODO:
-- how many tubes do we really need ???
+-
 
 Ideas:
 - variate distance of tubes for different game modus
 - variate size of "anti-tubes"
 - make pipes pass by faster
-
-DONE:
-x why do we get no bottoms ???
-x time management
-x Flappy square to circle
-x tubes class/objects
-x function - move flappy bird
-x fix unschöne tubes abstand
 
 */
 
@@ -33,28 +25,40 @@ const int SCREEN_HEIGHT = 1000;
 
 void init();    // initialize/reset game objects
 
+
 int main() {
 
     // Create the main window
     RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "OLIVER CODES FLAPPY BIRD", sf::Style::Titlebar | sf::Style::Close);
 
-    // Load a sprite to display
-    Texture texture;
-    if (!texture.loadFromFile("media/Untitled.png")){ std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
-    Sprite sprite(texture);
+    // SFML graphics stuff /////////////////////////////////////////////////////////////////////////////////////
+
+    // Load background
+    Texture bgTexture;
+    if( !bgTexture.loadFromFile("media/background.png")){ std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
+    Sprite bgSprite( bgTexture );
 
     // Load font
     Font font;
     if( !font.loadFromFile("media/GojiraBlack.ttf")){ std::cout<< "ERROR: Font could not be loaded" << std::endl; return -1; }
 
     // Game over text
-    Text txtGameOver("GAME OVER", font, 100);
+    Text txtGameOver("GAME OVER", font, 120);
     txtGameOver.setFillColor(Color::Red);
+    txtGameOver.setStyle(Text::Bold);
     FloatRect tempRect = txtGameOver.getLocalBounds();
     txtGameOver.setOrigin( tempRect.left + tempRect.width/2.0f, tempRect.top + tempRect.height/2.0f );
     txtGameOver.setPosition( SCREEN_WIDTH/2, SCREEN_HEIGHT/2 );
 
-    // INIT STUFF
+    Text txtReplay("hit enter to play again", font, 70);
+    txtReplay.setFillColor(Color::Yellow);
+    tempRect = txtReplay.getLocalBounds();
+    txtReplay.setOrigin( tempRect.left + tempRect.width/2.0f, tempRect.top + tempRect.height/2.0f );
+    txtReplay.setPosition( SCREEN_WIDTH/2, SCREEN_HEIGHT*0.8 );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // INIT GAME
     init();
 
 
@@ -74,14 +78,17 @@ int main() {
                             break;
 
                         case Keyboard::Space:
-                            if( flappyBird.state != gameOver ) {
-                                birdFly();
-                            }
-                            else { init(); }
+                            if( flappyBird.state != gameOver ) { birdFly(); }
+                            break;
+
+                        case Keyboard::Return:
+                            if( flappyBird.state == gameOver ) { init(); } // re-play
                             break;
 
                         default: break;
                     }
+
+                default: break;
             }
         }
 
@@ -92,24 +99,32 @@ int main() {
             moveBird( SCREEN_HEIGHT );
         }
 
-        Vector2f flappyPos = flappyBird.shape.getPosition();
+        // check for collision
+        Vector2f flappyPos = flappyBird.sprite.getPosition();
         for( int i = 0; i < NR_OF_PIPES; i++ ) {
-            if( antiPipes[i].getGlobalBounds().contains( flappyPos )) { continue; }
-            else if( pipes[i].getGlobalBounds().contains( flappyPos )) {
+            if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
                 flappyBird.state = gameOver;
             }
 
         }
 
+
         // Clear screen
-        window.clear( Color::White );
+        window.clear( );
+
 
         // Draw
+        window.draw( bgSprite );
         drawPipes( window );
-        window.draw( flappyBird.shape );
-        if( flappyBird.state == gameOver ) window.draw( txtGameOver );
+        window.draw( flappyBird.sprite );
+        if( flappyBird.state == gameOver ) {
+            window.draw(txtReplay);
+            window.draw( txtGameOver );
 
-        window.draw(sprite);
+        }
+
+
+        // display drawn stuff
         window.display();
 
     }
