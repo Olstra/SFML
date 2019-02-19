@@ -25,7 +25,6 @@ const int SCREEN_HEIGHT = 1000;
 
 void init();    // initialize/reset game objects
 
-
 int main() {
 
     // Create the main window
@@ -139,11 +138,3 @@ void init() {
     initBird( SCREEN_WIDTH, SCREEN_HEIGHT );
 
 }
-
-
-
-
-
-
-
-
