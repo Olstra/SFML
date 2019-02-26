@@ -5,6 +5,10 @@ Contains the games:
 * Tic Tac Toe
 * Flappy Bird
 
+Visualizations for sorting algorithms:
+* bubble sort
+* insertion sort
+* selection sort
 
 Effects:
 * purple rain
