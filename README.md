@@ -6,13 +6,13 @@ Contains the games:
 * Flappy Bird
 
 Visualizations for sorting algorithms:
-* bubble sort
-* insertion sort
-* selection sort
+* Bubble sort
+* Insertion sort
+* Selection sort
 
 Effects:
-* purple rain
-* matrix rain
+* Purple rain
+* Matrix rain
 
 ## Author
 **Olstra**
