@@ -45,7 +45,7 @@ void birdFly() {
 
     if( flappyBird.state != flying ) {
         temp = flappyBird.sprite.getPosition().y - pushBird;
-        flappyBird.sprite.setPosition(sf::Vector2f(flappyBird.sprite.getPosition().x, temp));    // update position
+        flappyBird.sprite.setPosition( sf::Vector2f( flappyBird.sprite.getPosition().x, temp ) );    // update position
 
         flappyBird.state = flying;
     }
@@ -60,8 +60,8 @@ void moveBird( int SCREEN_HEIGHT ) {
     switch( flappyBird.state ) {
         case falling:
             if( flappyClock.getElapsedTime().asMilliseconds() >= gravity) {
-                // make sure flappy bird doesn't fall off the screen
-                if( flappyBird.sprite.getPosition().y <= ( SCREEN_HEIGHT - spriteSize )) {
+                // make sure flappy bird doesn't fall off the screen (-100 because of floor)
+                if( flappyBird.sprite.getPosition().y <= ( SCREEN_HEIGHT - spriteSize - 100 )) {
                     temp = flappyBird.sprite.getPosition().y + gravity;
                     flappyBird.sprite.setPosition(sf::Vector2f(flappyBird.sprite.getPosition().x, temp));
 

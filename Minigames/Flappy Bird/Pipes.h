@@ -10,12 +10,12 @@
 
 
 const int PIPE_WIDTH = 100;
-float velPipes = 5.0;           // velocity at which the pipes pass by
-int distance = PIPE_WIDTH * 3;  // distance between 2 pipes
+int velPipes = 5;               // velocity at which the pipes pass by
+int distance = PIPE_WIDTH * 3;  // distance between 2 pipes (2x pipes witdth inbetween pipes)
 int antiPipeH = 200;            // distance between pipe top and pipe bottom "Lücke"
 sf::Clock pipesClock;
 
-const int NR_OF_PIPES = ( 1200 / PIPE_WIDTH ) / 3; // (screenWidth/PW)/3 => pipe-x-x-pipe-x-x-pipe-...
+const int NR_OF_PIPES = 3;//( 1200 / PIPE_WIDTH ) / 3; // (screenWidth/PW)/3 => pipe-x-x-pipe-x-x-pipe-...
 static sf::RectangleShape pipesTop[NR_OF_PIPES];
 static sf::RectangleShape pipesBottom[NR_OF_PIPES];
 
@@ -31,7 +31,7 @@ int randHeight( int SCREEN_HEIGHT ) {
 
 }
 
-void initPipes(int SCREEN_WIDTH, int SCREEN_HEIGHT) {
+void initPipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int temp;
 
@@ -41,14 +41,14 @@ void initPipes(int SCREEN_WIDTH, int SCREEN_HEIGHT) {
         temp = randHeight( SCREEN_HEIGHT );
 
         // create pipes
-        pipesTop[i].setSize(sf::Vector2f(PIPE_WIDTH, temp));
-        pipesTop[i].setPosition(SCREEN_WIDTH + (i * distance), 0);
-        pipesTop[i].setFillColor(sf::Color::Green);
+        pipesTop[i].setSize( sf::Vector2f( PIPE_WIDTH, temp ) );
+        pipesTop[i].setPosition( SCREEN_WIDTH + (i * distance), 0 );
+        pipesTop[i].setFillColor( sf::Color::Green );
 
         // create bottom pipes
-        pipesBottom[i].setSize(sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
-        pipesBottom[i].setPosition(SCREEN_WIDTH + (i * distance), ( temp+antiPipeH ));
-        pipesBottom[i].setFillColor(sf::Color::Green);
+        pipesBottom[i].setSize( sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
+        pipesBottom[i].setPosition( SCREEN_WIDTH + (i * distance), ( temp+antiPipeH ));
+        pipesBottom[i].setFillColor( sf::Color::Green );
 
     }
 
@@ -64,27 +64,28 @@ void drawPipes( sf::RenderWindow& window ) {
 
 void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
-    int temp;
+    int newPos;
+   // int ellapsedTime = pipesClock.getElapsedTime().asMilliseconds();
 
     // move pipes according to ellapsed time
-    if( pipesClock.getElapsedTime().asMilliseconds() >= velPipes) {
+    if( pipesClock.getElapsedTime().asMilliseconds() > velPipes ) {
         for ( int i = 0; i < NR_OF_PIPES; i++) {
 
-            if( pipesTop[i].getPosition().x >= 0) {
-                temp = pipesTop[i].getPosition().x - 1;
-                pipesTop[i].setPosition(sf::Vector2f(temp, 0));
-                pipesBottom[i].setPosition(sf::Vector2f(temp, pipesBottom[i].getPosition().y));
+            if( pipesTop[i].getPosition().x > 0 - PIPE_WIDTH ) {
+                newPos = pipesTop[i].getPosition().x - 1; // move pipes to the left
+                pipesTop[i].setPosition( sf::Vector2f( newPos, 0 ) );
+                pipesBottom[i].setPosition( sf::Vector2f( newPos, pipesBottom[i].getPosition().y ) );
             }
             else{
-                temp = randHeight( SCREEN_HEIGHT );
-                pipesTop[i].setSize(sf::Vector2f(PIPE_WIDTH, temp));
-                pipesTop[i].setPosition(SCREEN_WIDTH + (i * distance), 0);
-                pipesBottom[i].setSize(sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
-                pipesBottom[i].setPosition(SCREEN_WIDTH + (i * distance), ( temp+antiPipeH ));
+                newPos = randHeight( SCREEN_HEIGHT );
+                pipesTop[i].setSize( sf::Vector2f( PIPE_WIDTH, newPos ) );
+                pipesTop[i].setPosition( SCREEN_WIDTH + (i * distance), 0 );
+                pipesBottom[i].setSize( sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-newPos-antiPipeH ) ));
+                pipesBottom[i].setPosition( SCREEN_WIDTH + (i * distance), ( newPos + antiPipeH ));
             }
         }
 
-        pipesClock.restart();
+        pipesClock.restart(); // better this way otherwise flackering in screen
     }
 
 }

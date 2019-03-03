@@ -20,3 +20,17 @@
 1549589066 /home/oliver/Documents/SFML/Minigames/Flappy Bird/Bird.h
 	<SFML/Graphics.hpp>
 
+1551641585 source:/home/oliver/Documents/Projekte/C_Cpp/SFML/Minigames/Flappy Bird/main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<string>
+	"Pipes.h"
+	"Bird.h"
+
+1551642398 /home/oliver/Documents/Projekte/C_Cpp/SFML/Minigames/Flappy Bird/Pipes.h
+	<SFML/Graphics.hpp>
+	<iostream>
+
+1551628677 /home/oliver/Documents/Projekte/C_Cpp/SFML/Minigames/Flappy Bird/Bird.h
+	<SFML/Graphics.hpp>
+

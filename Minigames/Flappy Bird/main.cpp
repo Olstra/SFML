@@ -3,7 +3,9 @@ Bugs:
 -
 
 TODO:
-- add score count
+X add score count
+- check why game overheats pc
+-- is it because of sfml game loop?
 
 Ideas:
 - variate distance of tubes for different game modus
@@ -14,16 +16,21 @@ Ideas:
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <string>
 #include "Pipes.h"
 #include "Bird.h"
 
 using namespace sf;
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 1000;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 800;
+
+int score;
+int idx;    // used to track pipes for score++
 
 void init();    // initialize/reset game objects
+
 
 int main() {
 
@@ -37,29 +44,33 @@ int main() {
     if( !bgTexture.loadFromFile("media/background.png")){ std::cout<< "ERROR: Background could not be loaded" << std::endl; return -1; }
     Sprite bgSprite( bgTexture );
 
+    // load (game over) menu
+    Texture menu;
+    if ( !menu.loadFromFile("media/menu.png") ) { std::cout << "ERROR: menu.png couldn't be loaded" << std::endl; return -1; }
+    Sprite menuSprite( menu );
+    menuSprite.setPosition( 100, 200 );
+
     // Load font
     Font font;
-    if( !font.loadFromFile("media/GojiraBlack.ttf")){ std::cout<< "ERROR: Font could not be loaded" << std::endl; return -1; }
+    if( !font.loadFromFile("media/Dyuthi.ttf")){ std::cout<< "ERROR: Font could not be loaded" << std::endl; return -1; }
 
-    // Game over text
-    Text txtGameOver("GAME OVER", font, 120);
-    txtGameOver.setFillColor(Color::Red);
-    txtGameOver.setStyle(Text::Bold);
-    FloatRect tempRect = txtGameOver.getLocalBounds();
-    txtGameOver.setOrigin( tempRect.left + tempRect.width/2.0f, tempRect.top + tempRect.height/2.0f );
-    txtGameOver.setPosition( SCREEN_WIDTH/2, SCREEN_HEIGHT/2 );
+    // score
+    Text scoreTxt( "0", font, 100 );
+    scoreTxt.setFillColor( Color::Black );
+    scoreTxt.setOutlineColor( Color::White );
+    scoreTxt.setOutlineThickness( 3 );
+    scoreTxt.setPosition( 10, 700 );
 
-    Text txtReplay("hit enter to play again", font, 70);
-    txtReplay.setFillColor(Color::Yellow);
-    tempRect = txtReplay.getLocalBounds();
-    txtReplay.setOrigin( tempRect.left + tempRect.width/2.0f, tempRect.top + tempRect.height/2.0f );
-    txtReplay.setPosition( SCREEN_WIDTH/2, SCREEN_HEIGHT*0.8 );
+    // game floor
+    Color floorCol( 205, 215, 215 );
+    RectangleShape gameFloor( Vector2f( 1200, 70 ) );
+    gameFloor.setFillColor( floorCol );
+    gameFloor.setPosition( Vector2f( 0, SCREEN_HEIGHT-gameFloor.getSize().y ) );
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // INIT GAME
     init();
-
 
 	// Start the game loop
     while (window.isOpen()) {
@@ -81,7 +92,11 @@ int main() {
                             break;
 
                         case Keyboard::Return:
-                            if( flappyBird.state == gameOver ) { init(); } // re-play
+                            // re-play
+                            if( flappyBird.state == gameOver ) {
+                                init();
+                                scoreTxt.setString( std::to_string( score ) ); // reset game score text
+                            }
                             break;
 
                         default: break;
@@ -91,36 +106,40 @@ int main() {
             }
         }
 
-
         // handle movement
         if( flappyBird.state == flying || flappyBird.state == falling ) {
             movePipes( SCREEN_WIDTH, SCREEN_HEIGHT );
             moveBird( SCREEN_HEIGHT );
         }
 
-        // check for collision
+        // get current flappy bird position
         Vector2f flappyPos = flappyBird.sprite.getPosition();
-        for( int i = 0; i < NR_OF_PIPES; i++ ) {
-            if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
-                flappyBird.state = gameOver;
-            }
 
+        // check for collision
+//        for( int i = 0; i < NR_OF_PIPES; i++ ) {
+//            if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
+//                flappyBird.state = gameOver;
+//            }
+//        }
+
+        // if pipe is behind flappyBird x pos score goes up
+        if ( pipesBottom[idx].getPosition().x < flappyPos.x ) {
+            score++;
+            scoreTxt.setString( std::to_string( score ) );
+            // go to next pipe
+            ( idx < NR_OF_PIPES ) ? idx++ : idx = 0;
         }
-
 
         // Clear screen
         window.clear( );
-
 
         // Draw
         window.draw( bgSprite );
         drawPipes( window );
         window.draw( flappyBird.sprite );
-        if( flappyBird.state == gameOver ) {
-            window.draw(txtReplay);
-            window.draw( txtGameOver );
-
-        }
+        window.draw( gameFloor );
+        window.draw( scoreTxt );
+        if( flappyBird.state == gameOver ) { window.draw( menuSprite ); }
 
         // display drawn stuff
         window.display();
@@ -132,7 +151,11 @@ int main() {
 
 
 void init() {
-    srand(time(0));
+    srand( time(0) );
+
+    // reset score
+    score = 0;
+    idx = 0;
 
     initPipes( SCREEN_WIDTH, SCREEN_HEIGHT );
     initBird( SCREEN_WIDTH, SCREEN_HEIGHT );
