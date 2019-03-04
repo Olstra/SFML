@@ -11,7 +11,7 @@
 
 const int PIPE_WIDTH = 100;
 int velPipes = 5;               // velocity at which the pipes pass by
-int distance = PIPE_WIDTH * 3;  // distance between 2 pipes (2x pipes witdth inbetween pipes)
+const int distance = 300;//PIPE_WIDTH * 3;  // distance between 2 pipes (2x pipes witdth inbetween pipes)
 int antiPipeH = 200;            // distance between pipe top and pipe bottom "Lücke"
 sf::Clock pipesClock;
 
@@ -62,11 +62,13 @@ void drawPipes( sf::RenderWindow& window ) {
     }
 }
 
+int idxX = 0;
+
 void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int newPos;
    // int ellapsedTime = pipesClock.getElapsedTime().asMilliseconds();
-
+//int idx = 1;
     // move pipes according to ellapsed time
     if( pipesClock.getElapsedTime().asMilliseconds() > velPipes ) {
         for ( int i = 0; i < NR_OF_PIPES; i++) {
@@ -79,10 +81,11 @@ void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
             else{
                 newPos = randHeight( SCREEN_HEIGHT );
                 pipesTop[i].setSize( sf::Vector2f( PIPE_WIDTH, newPos ) );
-                pipesTop[i].setPosition( SCREEN_WIDTH + (i * distance), 0 );
+                pipesTop[i].setPosition( SCREEN_WIDTH + (idxX * distance), 0 );
                 pipesBottom[i].setSize( sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-newPos-antiPipeH ) ));
-                pipesBottom[i].setPosition( SCREEN_WIDTH + (i * distance), ( newPos + antiPipeH ));
-            }
+                pipesBottom[i].setPosition( SCREEN_WIDTH + (idxX * distance), ( newPos + antiPipeH ));
+            	( idxX >= 3 ) ? idxX = 0 : idxX++;
+		}
         }
 
         pipesClock.restart(); // better this way otherwise flackering in screen
