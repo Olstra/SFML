@@ -116,11 +116,11 @@ int main() {
         Vector2f flappyPos = flappyBird.sprite.getPosition();
 
         // check for collision
-//        for( int i = 0; i < NR_OF_PIPES; i++ ) {
-//            if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
-//                flappyBird.state = gameOver;
-//            }
-//        }
+        //for( int i = 0; i < NR_OF_PIPES; i++ ) {
+          //  if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
+            //    flappyBird.state = gameOver;
+           // }
+        //}
 
         // if pipe is behind flappyBird x pos score goes up
         if ( pipesBottom[idx].getPosition().x < flappyPos.x ) {
