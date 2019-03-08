@@ -56,10 +56,13 @@ int main() {
 
     // score
     Text scoreTxt( "0", font, 100 );
+    FloatRect tempRect = scoreTxt.getLocalBounds();
+    scoreTxt.setOrigin( tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+
+    scoreTxt.setPosition( SCREEN_WIDTH/2, 100 );
     scoreTxt.setFillColor( Color::Black );
     scoreTxt.setOutlineColor( Color::White );
     scoreTxt.setOutlineThickness( 3 );
-    scoreTxt.setPosition( 10, 700 );
 
     // game floor
     Color floorCol( 205, 215, 215 );
@@ -72,7 +75,7 @@ int main() {
     // INIT GAME
     init();
 
-	// Start the game loop
+    // Start the game loop
     while (window.isOpen()) {
         // Process events
         Event event;
@@ -123,11 +126,11 @@ int main() {
         //}
 
         // if pipe is behind flappyBird x pos score goes up
-        if ( pipesBottom[idx].getPosition().x < flappyPos.x ) {
+        if ( pipesBottomSprt[idx].getPosition().x < flappyPos.x ) {
             score++;
             scoreTxt.setString( std::to_string( score ) );
             // go to next pipe
-            ( idx < NR_OF_PIPES ) ? idx++ : idx = 0;
+            ( (idx+1) < NR_OF_PIPES ) ? idx++ : idx = 0;
         }
 
         // Clear screen

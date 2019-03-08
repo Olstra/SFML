@@ -9,15 +9,21 @@
 #include <iostream>
 
 
+// Pipes attributes
 const int PIPE_WIDTH = 100;
-int velPipes = 5;               // velocity at which the pipes pass by
-const int distance = 200;//PIPE_WIDTH * 3;  // distance between 2 pipes (2x pipes witdth inbetween pipes)
-int antiPipeH = 200;            // distance between pipe top and pipe bottom "Lücke"
-sf::Clock pipesClock;
+int velPipes = 5;               	// velocity at which the pipes pass by
+const int distance = PIPE_WIDTH * 2;	// distance between 2 pipes (2x pipes witdth inbetween pipes)
+int antiPipeH = 200;            	// distance between pipe top and pipe bottom "Lücke"
+const int NR_OF_PIPES = 3;		// ( SCREEN_WIDTH / PIPE_WIDTH ) / 3 => pipe-x-x-pipe-x-x-pipe-...
 
-const int NR_OF_PIPES = 3;//( 1200 / PIPE_WIDTH ) / 3; // (screenWidth/PW)/3 => pipe-x-x-pipe-x-x-pipe-...
+// SFML Stuff
+sf::Clock pipesClock;
 static sf::RectangleShape pipesTop[NR_OF_PIPES];
 static sf::RectangleShape pipesBottom[NR_OF_PIPES];
+
+// Load Pipes textures/PNGs
+static sf::Texture bottomPipeTxtr, topPipeTxtr;
+static sf::Sprite pipesBottomSprt[NR_OF_PIPES], pipesTopSprt[NR_OF_PIPES];
 
 
 int randHeight( int SCREEN_HEIGHT ) {
@@ -26,14 +32,18 @@ int randHeight( int SCREEN_HEIGHT ) {
     int maxHeight = SCREEN_HEIGHT - ( antiPipeH + 100 );
 
     int randHeight = minHeight + rand() % ( ( maxHeight + 1 ) - minHeight );
-
     return randHeight;
 
 }
 
+
 void initPipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int temp;
+	
+    // Load pics for pipes
+    if ( !bottomPipeTxtr.loadFromFile( "media/pipes_bottom.png" ) ) { std::cout << "ERROR: Pipes.h line 24" << std::endl; }
+    if ( !topPipeTxtr.loadFromFile( "media/pipes_top.png" ) ) { std::cout << "ERROR: Pipes.h line 24" << std::endl; }
 
     // inititalize pipes
     for ( int i = 0; i < NR_OF_PIPES; i++) {
@@ -41,57 +51,54 @@ void initPipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
         temp = randHeight( SCREEN_HEIGHT );
 
         // create pipes
-        pipesTop[i].setSize( sf::Vector2f( PIPE_WIDTH, temp ) );
-        pipesTop[i].setPosition( SCREEN_WIDTH + (i *( distance + PIPE_WIDTH ) ), 0 );
-        pipesTop[i].setFillColor( sf::Color::Green );
+	pipesTopSprt[i].setTexture( topPipeTxtr );
+	pipesTopSprt[i].setTextureRect( sf::IntRect( 0, SCREEN_HEIGHT-temp, PIPE_WIDTH, temp ) );
+	pipesTopSprt[i].setPosition( SCREEN_WIDTH + ( i * ( distance + PIPE_WIDTH ) ), 0 );	
 
-        // create bottom pipes
-        pipesBottom[i].setSize( sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-temp-antiPipeH ) ));
-        pipesBottom[i].setPosition( SCREEN_WIDTH + (i * ( distance + PIPE_WIDTH ) ), ( temp+antiPipeH ));
-        pipesBottom[i].setFillColor( sf::Color::Green );
+	pipesBottomSprt[i].setTexture( bottomPipeTxtr );
+	pipesBottomSprt[i].setTextureRect( sf::IntRect( 0, 0, PIPE_WIDTH, SCREEN_HEIGHT ) );
+	pipesBottomSprt[i].setPosition( SCREEN_WIDTH + ( i * ( distance + PIPE_WIDTH ) ), ( temp + antiPipeH ) );
 
     }
 
 }
+
 
 void drawPipes( sf::RenderWindow& window ) {
 
     for(int i = 0; i < NR_OF_PIPES; i++) {
-        window.draw( pipesTop[i] );
-        window.draw( pipesBottom[i] );
+	window.draw( pipesTopSprt[i] );
+	window.draw( pipesBottomSprt[i] );
     }
 }
 
-int idxX = 0;
 
 void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int newPos;
-	int nextIdx;
+    
     // move pipes according to ellapsed time
     if( pipesClock.getElapsedTime().asMilliseconds() > velPipes ) {
         for ( int i = 0; i < NR_OF_PIPES; i++) {
 
-            if( pipesTop[i].getPosition().x > 0 - PIPE_WIDTH ) {
-                newPos = pipesTop[i].getPosition().x - 1; // move pipes to the left
-                pipesTop[i].setPosition( sf::Vector2f( newPos, 0 ) );
-                pipesBottom[i].setPosition( sf::Vector2f( newPos, pipesBottom[i].getPosition().y ) );
+            if( pipesTopSprt[i].getPosition().x > 0 - PIPE_WIDTH ) {
+                newPos = pipesTopSprt[i].getPosition().x - 1; // move pipes to the left
+                pipesTopSprt[i].setPosition( sf::Vector2f( newPos, 0 ) );
+		pipesBottomSprt[i].setPosition( sf::Vector2f( newPos, pipesBottomSprt[i].getPosition().y ) );
             }
             else{
-		// re-insert pipe at 'distance' behing last pipe
-		( i + 1 < NR_OF_PIPES ) ? nextIdx = i + 1 : nextIdx = 0; 
+		// generate new pipes dimensions every time pipes "leave" screen
                 newPos = randHeight( SCREEN_HEIGHT );
-                pipesTop[i].setSize( sf::Vector2f( PIPE_WIDTH, newPos ) );
-                pipesTop[i].setPosition( SCREEN_WIDTH + distance, 0 );
-                pipesBottom[i].setSize( sf::Vector2f( PIPE_WIDTH, ( SCREEN_HEIGHT-newPos-antiPipeH ) ));
-                pipesBottom[i].setPosition( SCREEN_WIDTH + distance , ( newPos + antiPipeH ));
-		}
+		
+		pipesTopSprt[i].setTextureRect( sf::IntRect( 0, SCREEN_HEIGHT-newPos, PIPE_WIDTH, newPos ) );
+		pipesTopSprt[i].setPosition( SCREEN_WIDTH + distance, 0 );	
+
+		pipesBottomSprt[i].setTextureRect( sf::IntRect( 0, 0, PIPE_WIDTH, SCREEN_HEIGHT ) );
+		pipesBottomSprt[i].setPosition( SCREEN_WIDTH + distance,  newPos + antiPipeH  );
+	    }
         }
 
         pipesClock.restart(); // better this way otherwise flackering in screen
     }
 
 }
-
-
-

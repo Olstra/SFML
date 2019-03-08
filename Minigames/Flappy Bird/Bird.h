@@ -14,7 +14,7 @@ int jumpDuration = 200;
 int flappySize = 40;    // size of the flappy bird
 sf::Clock flappyClock;
 sf::Texture textureBird;
-int spriteSize = 80;    // sprite of flappy bird is a square of 80x80 pixels
+int spriteSize = 50;    // sprite of flappy bird is a square of 80x80 pixels
 
 
 enum BIRD_STATE { stealth, falling, flying, gameOver };
