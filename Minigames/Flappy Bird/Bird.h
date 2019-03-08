@@ -7,15 +7,14 @@
 #include <SFML/Graphics.hpp>
 
 // movement of flappy bird
-int gravity = 60;
-int pushBird = 120;     // jump height of bird
+int gravity = 50;
+int pushBird = 100;     // jump height of bird
 int jumpDuration = 200;
 
-int flappySize = 40;    // size of the flappy bird
+//int flappySize = 40;    // size of the flappy bird
 sf::Clock flappyClock;
 sf::Texture textureBird;
-int spriteSize = 50;    // sprite of flappy bird is a square of 80x80 pixels
-
+int spriteSize = 50;    // sprite of flappy bird is a square of sizeXsize pixels
 
 enum BIRD_STATE { stealth, falling, flying, gameOver };
 
@@ -62,14 +61,14 @@ void moveBird( int SCREEN_HEIGHT ) {
             if( flappyClock.getElapsedTime().asMilliseconds() >= gravity) {
                 // make sure flappy bird doesn't fall off the screen (-100 because of floor)
                 if( flappyBird.sprite.getPosition().y <= ( SCREEN_HEIGHT - spriteSize - 100 )) {
-                    temp = flappyBird.sprite.getPosition().y + gravity;
+                    temp = flappyBird.sprite.getPosition().y + (spriteSize/2);
                     flappyBird.sprite.setPosition(sf::Vector2f(flappyBird.sprite.getPosition().x, temp));
 
                     flappyClock.restart();
                 }
                 else { flappyBird.state = gameOver; }
             }
-            flappyBird.sprite.setTextureRect( sf::IntRect(160, 0, 80, 80) );
+            flappyBird.sprite.setTextureRect( sf::IntRect(2*spriteSize, 0, spriteSize, spriteSize) );
             break;
 
         case flying:
@@ -78,7 +77,7 @@ void moveBird( int SCREEN_HEIGHT ) {
                 flappyClock.restart();
             }
 
-            flappyBird.sprite.setTextureRect( sf::IntRect(80, 0, 80, 80) ); // update sprite
+            flappyBird.sprite.setTextureRect( sf::IntRect(spriteSize, 0, spriteSize, spriteSize) ); // update sprite
             break;
 
         case stealth:

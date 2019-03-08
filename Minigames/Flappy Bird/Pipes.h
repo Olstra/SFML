@@ -40,7 +40,7 @@ int randHeight( int SCREEN_HEIGHT ) {
 void initPipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int temp;
-	
+
     // Load pics for pipes
     if ( !bottomPipeTxtr.loadFromFile( "media/pipes_bottom.png" ) ) { std::cout << "ERROR: Pipes.h line 24" << std::endl; }
     if ( !topPipeTxtr.loadFromFile( "media/pipes_top.png" ) ) { std::cout << "ERROR: Pipes.h line 24" << std::endl; }
@@ -53,7 +53,7 @@ void initPipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
         // create pipes
 	pipesTopSprt[i].setTexture( topPipeTxtr );
 	pipesTopSprt[i].setTextureRect( sf::IntRect( 0, SCREEN_HEIGHT-temp, PIPE_WIDTH, temp ) );
-	pipesTopSprt[i].setPosition( SCREEN_WIDTH + ( i * ( distance + PIPE_WIDTH ) ), 0 );	
+	pipesTopSprt[i].setPosition( SCREEN_WIDTH + ( i * ( distance + PIPE_WIDTH ) ), 0 );
 
 	pipesBottomSprt[i].setTexture( bottomPipeTxtr );
 	pipesBottomSprt[i].setTextureRect( sf::IntRect( 0, 0, PIPE_WIDTH, SCREEN_HEIGHT ) );
@@ -76,26 +76,25 @@ void drawPipes( sf::RenderWindow& window ) {
 void movePipes( int SCREEN_WIDTH, int SCREEN_HEIGHT ) {
 
     int newPos;
-    
+
     // move pipes according to ellapsed time
     if( pipesClock.getElapsedTime().asMilliseconds() > velPipes ) {
         for ( int i = 0; i < NR_OF_PIPES; i++) {
-
             if( pipesTopSprt[i].getPosition().x > 0 - PIPE_WIDTH ) {
                 newPos = pipesTopSprt[i].getPosition().x - 1; // move pipes to the left
                 pipesTopSprt[i].setPosition( sf::Vector2f( newPos, 0 ) );
-		pipesBottomSprt[i].setPosition( sf::Vector2f( newPos, pipesBottomSprt[i].getPosition().y ) );
+                pipesBottomSprt[i].setPosition( sf::Vector2f( newPos, pipesBottomSprt[i].getPosition().y ) );
             }
             else{
-		// generate new pipes dimensions every time pipes "leave" screen
+                // generate new pipes dimensions every time pipes "leave" screen
                 newPos = randHeight( SCREEN_HEIGHT );
-		
-		pipesTopSprt[i].setTextureRect( sf::IntRect( 0, SCREEN_HEIGHT-newPos, PIPE_WIDTH, newPos ) );
-		pipesTopSprt[i].setPosition( SCREEN_WIDTH + distance, 0 );	
 
-		pipesBottomSprt[i].setTextureRect( sf::IntRect( 0, 0, PIPE_WIDTH, SCREEN_HEIGHT ) );
-		pipesBottomSprt[i].setPosition( SCREEN_WIDTH + distance,  newPos + antiPipeH  );
-	    }
+                pipesTopSprt[i].setTextureRect( sf::IntRect( 0, SCREEN_HEIGHT-newPos, PIPE_WIDTH, newPos ) );
+                pipesTopSprt[i].setPosition( SCREEN_WIDTH + distance, 0 );
+
+                pipesBottomSprt[i].setTextureRect( sf::IntRect( 0, 0, PIPE_WIDTH, SCREEN_HEIGHT ) );
+                pipesBottomSprt[i].setPosition( SCREEN_WIDTH + distance,  newPos + antiPipeH  );
+            }
         }
 
         pipesClock.restart(); // better this way otherwise flackering in screen

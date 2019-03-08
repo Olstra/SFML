@@ -3,9 +3,13 @@ Bugs:
 -
 
 TODO:
+- nicer BG
+- nicer Flappy bird
+X nicer pipes
 X add score count
-- check why game overheats pc
--- is it because of sfml game loop?
+
+for next update:
+- score keeper
 
 Ideas:
 - variate distance of tubes for different game modus
@@ -27,7 +31,7 @@ const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 800;
 
 int score;
-int idx;    // used to track pipes for score++
+int idx;        // used to track pipes for score++
 
 void init();    // initialize/reset game objects
 
@@ -54,11 +58,10 @@ int main() {
     Font font;
     if( !font.loadFromFile("media/Dyuthi.ttf")){ std::cout<< "ERROR: Font could not be loaded" << std::endl; return -1; }
 
-    // score
+    // score text
     Text scoreTxt( "0", font, 100 );
     FloatRect tempRect = scoreTxt.getLocalBounds();
     scoreTxt.setOrigin( tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-
     scoreTxt.setPosition( SCREEN_WIDTH/2, 100 );
     scoreTxt.setFillColor( Color::Black );
     scoreTxt.setOutlineColor( Color::White );
@@ -115,15 +118,14 @@ int main() {
             moveBird( SCREEN_HEIGHT );
         }
 
+        // COLLISION detection
         // get current flappy bird position
         Vector2f flappyPos = flappyBird.sprite.getPosition();
-
-        // check for collision
-        //for( int i = 0; i < NR_OF_PIPES; i++ ) {
-          //  if( pipesTop[i].getGlobalBounds().contains( flappyPos ) || pipesBottom[i].getGlobalBounds().contains( flappyPos ) ) {
-            //    flappyBird.state = gameOver;
-           // }
-        //}
+        for( int i = 0; i < NR_OF_PIPES; i++ ) {
+            if( pipesTopSprt[i].getGlobalBounds().contains( flappyPos ) || pipesBottomSprt[i].getGlobalBounds().contains( flappyPos ) ) {
+                flappyBird.state = gameOver;
+            }
+        }
 
         // if pipe is behind flappyBird x pos score goes up
         if ( pipesBottomSprt[idx].getPosition().x < flappyPos.x ) {
