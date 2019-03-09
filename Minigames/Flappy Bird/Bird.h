@@ -5,6 +5,8 @@
 */
 
 #include <SFML/Graphics.hpp>
+#include "Graphics.h"
+
 
 // movement of flappy bird
 int gravity = 50;

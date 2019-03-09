@@ -24,6 +24,8 @@ Ideas:
 #include "Pipes.h"
 #include "Bird.h"
 
+#include "icon.h"
+
 using namespace sf;
 
 //Screen dimension constants
@@ -40,7 +42,7 @@ int main() {
 
     // Create the main window
     RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "OLIVER CODES FLAPPY BIRD", sf::Style::Titlebar | sf::Style::Close);
-
+    window.setIcon( flappy_icon.width, flappy_icon.height, flappy_icon.pixel_data );
     // SFML graphics stuff /////////////////////////////////////////////////////////////////////////////////////
 
     // Load background
