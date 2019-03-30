@@ -23,9 +23,9 @@ using namespace std;
 using namespace sf;
 
 // SFML stuff
-const int S_WIDTH = 2000;
-const int S_HEIGHT = 1500;
-const int FONT_S = 50;
+const int S_WIDTH = 800;
+const int S_HEIGHT = 800;
+const int FONT_S = 30;
 
 // Game stuff
 const int H = 15;   // Dimensions of game walls
@@ -139,7 +139,7 @@ int main() {
     RenderWindow app(VideoMode(S_WIDTH, S_HEIGHT), "Oliver Coding Snake");
     app.setFramerateLimit(10);
     // Get Fonts
-    Font font; if (!font.loadFromFile("media/consolas.ttf")) { cout << "Error while loading font!" <<endl; return -1; }
+    Font font; if (!font.loadFromFile("consolas.ttf")) { cout << "Error while loading font!" <<endl; return -1; }
 
     init(); // initialize game
 
@@ -159,7 +159,7 @@ int main() {
     gameOverS.setPosition(Vector2f(S_WIDTH/2.0f,S_HEIGHT/2.0f));
     Vector2f goPos = gameOverS.getPosition();
 
-    Text gameOverOptions("[x] EXIT\t\t\t\t\t\t\t\t[enter] PLAY AGAIN", font, FONT_S);
+    Text gameOverOptions("[x] EXIT\t\t\t[enter] PLAY AGAIN", font, FONT_S);
     gameOverOptions.setFillColor(Color::Green);
     FloatRect textRect2 = gameOverOptions.getLocalBounds();     // set position at center of screen
     gameOverOptions.setOrigin(textRect2.left + textRect2.width/2.0f, textRect2.top  + textRect2 .height/2.0f);

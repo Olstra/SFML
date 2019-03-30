@@ -26,8 +26,8 @@ enum GAME_STATE { mainMenu, bubble, insertion, selection } state;
 
 int main() {
 
-    const int S_WIDTH = 1000;
-    const int S_HEIGHT = 1000;
+    const int S_WIDTH = 800;
+    const int S_HEIGHT = 800;
 
     // Create the main window
     RenderWindow window( VideoMode( S_WIDTH, S_HEIGHT ), "OLIVER VISUALIZES SORTING ALGORITHMS", Style::Titlebar | Style::Close );
@@ -40,8 +40,6 @@ int main() {
     state = insertion;
 
     // Create rects /////////////////////////////////////////////////////////////////////////////
-    const int NR_OF_RECTS = 20;
-    RectangleShape rects[NR_OF_RECTS];
 
     int margin = 100;
     int abstand = 40;
@@ -49,7 +47,9 @@ int main() {
     const int WIDTH = 25;   // width of rectangles
 
     const int MIN_LEN = 10;
-    const int MAX_LEN = 800;
+    const int MAX_LEN = S_WIDTH - ( 2 * abstand );
+    const int NR_OF_RECTS = (S_HEIGHT - ( 2 * abstand ) ) / WIDTH; 
+    RectangleShape rects[NR_OF_RECTS];
 
     srand( (int)time( 0 ) ); // init random seed
 
@@ -59,7 +59,7 @@ int main() {
 
         // create rects
         rects[i].setSize( Vector2f( length, WIDTH ) );
-        rects[i].setPosition( Vector2f( margin, i * abstand + margin ) );
+        rects[i].setPosition( Vector2f( margin, i * abstand + abstand ) );
         rects[i].setFillColor( Color::Blue );
 
     }

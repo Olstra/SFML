@@ -42,7 +42,9 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="Bird.h" />
+		<Unit filename="Graphics.h" />
 		<Unit filename="Pipes.h" />
+		<Unit filename="icon.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
