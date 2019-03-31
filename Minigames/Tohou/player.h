@@ -1,11 +1,11 @@
 #include <SFML/Graphics.hpp> 
 
+
 enum STATE {
 	stealth,
 	alive,
 	dead
 };
-
 
 struct PLAYER {
 	
@@ -14,6 +14,8 @@ struct PLAYER {
 	int HP;
 	int attack;
 	int vel = 10;
+
+	STATE state;
 
 }player;
 
@@ -28,36 +30,6 @@ void initPlayer( ) {
 
 	player.HP = 100;
 	player.attack = 10;
+	player.state = stealth;
 
-
-}
-
-
-
-class Bullet {
-
-public:
-	int damage;
-	int vel;
-
-	sf::CircleShape body;
-
-	Bullet();
-
-};
-
-Bullet::Bullet( ) {
-
-	Bullet::body.setRadius( 10 );
-	Bullet::body.setPosition( player.body.getPosition() );
-	Bullet::body.setFillColor(sf::Color::Black );
-
-}
-
-
-void fire(){
-
-	// create bullet
-
-//	bullet.setRadius( 5 );
 }

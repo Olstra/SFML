@@ -3,6 +3,7 @@
 
 #include "player.h"
 #include "enemy.h"
+#include "bullets.h"
 
 using namespace sf;
 
@@ -57,9 +58,6 @@ int main() {
 
 							case Keyboard::Return:
 								fire( bulletsNr,  theBullets );
-							//	Bullet newBullet;
-							//	theBullets[bulletsNr] = newBullet;
-								//bulletsNr++;
 								break;
 
 
