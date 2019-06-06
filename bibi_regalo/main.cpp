@@ -4,7 +4,6 @@
 using namespace sf;
 
 
-
 int main() {
 
 	const int S_WIDTH = VideoMode::getDesktopMode().width;
@@ -15,35 +14,31 @@ int main() {
 	// Colors
 	Color bgColor(252, 108, 133);
 	Color butColor(253, 188, 180);
-	Color fontColor();
 
 	// Text
 	Font font;
 	if(!font.loadFromFile("media/font.ttf")){ printf("Couldn't open FONT!"); return -1; }
-	Text openMe("\tFELICIDADES PRIMA\n\tABRE TU REGALO!", font, 80);
+	Text openMe("\tFELICIDADES PRIMA\n\tABRE TU REGALO!", font, 50);
 	FloatRect tempRect;
 	tempRect = openMe.getLocalBounds();
     openMe.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
 	openMe.setPosition(S_WIDTH/6, S_HEIGHT/7);
 
-	Text goodbye("ESO ES TODO AMIGOS,\nHASTA LA PROXIMA!\n\nSALUDOS DESDE SUIZA |[+]", font, 80);
+	Text goodbye("ESO ES TODO AMIGOS,\nHASTA LA PROXIMA!\n\nSALUDOS DESDE SUIZA |[+]", font, 50);
 	tempRect = goodbye.getLocalBounds();
     goodbye.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
 	goodbye.setPosition(S_WIDTH/2, S_HEIGHT/2);
-
-	Text moore("PUCHALE OTRA VEZ, HAY MAS!", font, 50);
-	tempRect = moore.getLocalBounds();
-    moore.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-	moore.setPosition(S_WIDTH/6, S_HEIGHT/2);
 
 	Texture regaloTxt;
 	if(!regaloTxt.loadFromFile("media/regalo.png")){ return -1; }
 	Sprite regalo;
 	regalo.setTexture(regaloTxt);
 
+	int abstand = 00;
 	tempRect = regalo.getLocalBounds();
     regalo.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-	regalo.setPosition(S_WIDTH/6, S_HEIGHT/3);
+	regalo.setPosition(openMe.getPosition().x, openMe.getPosition().y*3);
+
 
 	// ragalo glowing box
 	int box_W = regaloTxt.getSize().x;
@@ -51,13 +46,18 @@ int main() {
 	RectangleShape glowingBox(Vector2f(box_W, box_H));
 	tempRect = glowingBox.getLocalBounds();
     glowingBox.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
-	glowingBox.setPosition(S_WIDTH/6, S_HEIGHT/3);
+	glowingBox.setPosition(openMe.getPosition().x, openMe.getPosition().y*3);
+
+	Text moore("PUCHALE OTRA VEZ, HAY MAS!", font, 25);
+	tempRect = moore.getLocalBounds();
+    moore.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
+	moore.setPosition(S_WIDTH/6, regalo.getPosition().y+250);
 
 	Color transparentColor(0, 0, 0, 0);
 	Color outColorA(255, 255, 255);
-	Color outColorB(255, 255, 0);
+	Color outColorB(255, 250, 105);
 	glowingBox.setFillColor(transparentColor); // set fill color to transparent
-	glowingBox.setOutlineThickness(20.0f);
+	glowingBox.setOutlineThickness(10.0f);
 
 	// Images
 	Texture fotos[9];
@@ -73,8 +73,6 @@ int main() {
     thePic.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
 	thePic.setPosition(S_WIDTH/2, S_HEIGHT/2);
 
-	thePic.setScale(0.5f, 0.5f);
-	widePic.setScale(0.5f, 0.5f);
 
 	int flag = -1;
 	bool show = false;
@@ -138,6 +136,7 @@ int main() {
 				tempRect = thePic.getLocalBounds();
 				thePic.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
 				thePic.setPosition(S_WIDTH/2, S_HEIGHT/2);
+				thePic.setScale(0.2f, 0.2f);
 
 				window.draw(thePic);
 			}
@@ -147,6 +146,7 @@ int main() {
 				tempRect = widePic.getLocalBounds();
 				widePic.setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
 				widePic.setPosition(S_WIDTH/2, S_HEIGHT/2);
+				widePic.setScale(0.2f, 0.2f);
 				window.draw(widePic);
 			}
 
