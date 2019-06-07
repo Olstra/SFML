@@ -315,10 +315,6 @@ int main() {
     playAgainButton.setPosition(windowW/5, windowH/15*14);
     //playAgainButton.set
 
-
-
-
-
     tempRect = textes[7].getLocalBounds();
     textes[7].setOrigin(tempRect.left+tempRect.width/2.0f, tempRect.top+tempRect.height/2.0f);
     textes[7].setPosition(windowW/2, windowH/2); // "select game mode:"
@@ -345,10 +341,10 @@ int main() {
 
     sf::Vector2i mousePos;
 
-
     // Start the game loop /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     currentState = gameMenu; // per default we start with game menu
+    
     while (window.isOpen()) {
         // Process events
         Event event;
@@ -450,8 +446,7 @@ int main() {
 //            if(textes[6].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
 //                if(currentState != mainPlay) { init(); }
 //            }
-
-
+            
         }
 
         // Clear screen
@@ -496,9 +491,7 @@ int main() {
             case player02Loses:
                 while(clock.getElapsedTime().asSeconds() < delay.asSeconds()) {continue;}
 
-
                 window.draw(playAgainButton);
-
 
                 window.draw(textes[3]);
                 window.draw(textes[6]);
