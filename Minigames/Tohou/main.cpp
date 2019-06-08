@@ -2,42 +2,54 @@
 #include <iostream>
 
 #include "player.h"
-#include "enemy.h"
+#include "bullets.h"
+// #include "enemy.h"
 
 using namespace sf;
 
 const int S_WIDTH = 800;
 const int S_HEIGHT = 800;
 
-void fire( int nrOfBullets, Bullet theBullets[] ) {
-	Bullet newBullet;
-	theBullets[nrOfBullets] = newBullet;
-	nrOfBullets++;
+void fire( int nrOfBullets, Bullet* theBullets[], Vector2f pos ) {
+ 	Bullet newBullet( pos );
+ 	theBullets[nrOfBullets] = newBullet;
+ 	nrOfBullets++;
 }
+
+
+void addNewBullet( Vector2f pos );
+
 
 int main() {
 
     // Create the main window
     RenderWindow window( VideoMode( S_WIDTH, S_HEIGHT ), "OLIVER CODES TOUHOU", Style::Titlebar | Style::Close );
 	
-	// main player
+	// main player // // // // // // // 
 	initPlayer();
 	Vector2f playerPos;
 
-	// Enemy
-	Enemy A( 90, 90, 90 );
+	// Enemy // // // // // // // // 
+	// Enemy A( 90, 90, 90 );
 
-	// Bullets
-	Bullet theBullets[100];
-	int bulletsNr = 0;
+	// Bullets // // // // // // // // 
+	const size_t maxBullets = 3000;
+	Bullet* theBullets[maxBullets];
+	// init the bullets
+	for(size_t i=0; i < maxBullets; i++) { theBullets[i] = NULL; } 
+
+	// Time management
+	Clock clock;
+	Time timeElapsed;
 
 
 	// Start the game loop
     while ( window.isOpen() ) {
-        
 		
 		playerPos = player.body.getPosition();
-		
+		timeElapsed = clock.restart();	
+
+	
 		// Process events
         Event event;
         while (window.pollEvent( event )) {
@@ -55,13 +67,9 @@ int main() {
 							case Keyboard::Space:
 								break;
 
-							case Keyboard::Return:
-								fire( bulletsNr,  theBullets );
-							//	Bullet newBullet;
-							//	theBullets[bulletsNr] = newBullet;
-								//bulletsNr++;
-								break;
-
+							// case Keyboard::Return:
+								// addNewBullet( playerPos );
+							// 	break;
 
 							// move player
 							case Keyboard::Up:
@@ -92,25 +100,49 @@ int main() {
 				}
 		}
 
+
+	// fire bullet
+	if( Keyboard::isKeyPressed( Keyboard::Return ) ) { Bullet newBullet( playerPos ); }
+
+
+
+		// update bullets
+		for(size_t i=0; i < maxBullets; i++){
+			if(theBullets[i] != NULL){
+				theBullets[i]->update( timeElapsed.asMilliseconds() );
+			}
+		}
+		
+
         // Clear screen
         window.clear( Color::White );
 
         // Draw the sprite
 		window.draw( player.body );
-		window.draw( A.body );
-		// draw bullets
-		for( int i = 0; i <= bulletsNr; i++ ) {
-			// update bullets position
-			// TODOi
-			Vector2f pos = theBullets[i].body.getPosition();
-			pos.y--;
-			theBullets[i].body.setPosition( pos );
-			window.draw( theBullets[i].body );		
-		}
+	
+		window.draw( newBullet.body );
+	
+		// Update the window
+		window.display();
+	}
 
-	// Update the window
-	window.display();
+
+	return 0;
+
 }
 
-return 0;
-}
+//void addNewBullet( Vector2f pos ) {
+//
+//	// got to next free slot
+//	int i = 0;
+//	while( theBullets[i] != NULL ){ i++; }
+//
+//	// if(i >= maxBullets ) {
+//	// 	// TODO do sth if max nr of bullets reached...
+//	// }
+//
+//	Bullet newBullet( pos );
+//	theBullets[i] = newBullet;
+//
+//
+//}

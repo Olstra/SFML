@@ -1,22 +1,29 @@
+/**
+	This is the class for the bulltes
+	Author: Olstra
+	What does a bullet need?:
+		- velocity
+		- shape/sprite
+		- damage points
+*/
+
 #include <SFML/Graphics.hpp>
-#include "player.h"
 
 class Bullet {
 
-public:
-	int damage;
-	int vel;
+	public:
+		// constructor
+		Bullet( sf::Vector2f pos ){
+			this->vel = vel;
+			this->body.setPosition( pos );
+		}
 
-	sf::CircleShape body;
-
-	Bullet();
+		// update bullet position
+		void update( int timeElapsed ) {
+			body.setPosition( body.getPosition().x, body.getPosition().y + timeElapsed * vel );
+		}
+	
+		sf::CircleShape body;
+		int vel;
 
 };
-
-Bullet::Bullet( ) {
-
-	Bullet::body.setRadius( 10 );
-	Bullet::body.setPosition( player.body.getPosition() );
-
-
-}

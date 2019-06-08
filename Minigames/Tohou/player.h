@@ -29,35 +29,4 @@ void initPlayer( ) {
 	player.HP = 100;
 	player.attack = 10;
 
-
-}
-
-
-
-class Bullet {
-
-public:
-	int damage;
-	int vel;
-
-	sf::CircleShape body;
-
-	Bullet();
-
-};
-
-Bullet::Bullet( ) {
-
-	Bullet::body.setRadius( 10 );
-	Bullet::body.setPosition( player.body.getPosition() );
-	Bullet::body.setFillColor(sf::Color::Black );
-
-}
-
-
-void fire(){
-
-	// create bullet
-
-//	bullet.setRadius( 5 );
 }
