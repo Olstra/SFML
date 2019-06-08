@@ -2,8 +2,13 @@
 #include <iostream>
 
 #include "player.h"
+<<<<<<< HEAD
 #include "bullets.h"
 // #include "enemy.h"
+=======
+#include "enemy.h"
+#include "bullets.h"
+>>>>>>> master
 
 using namespace sf;
 
@@ -67,9 +72,16 @@ int main() {
 							case Keyboard::Space:
 								break;
 
+<<<<<<< HEAD
 							// case Keyboard::Return:
 								// addNewBullet( playerPos );
 							// 	break;
+=======
+							case Keyboard::Return:
+								fire( bulletsNr,  theBullets );
+								break;
+
+>>>>>>> master
 
 							// move player
 							case Keyboard::Up:

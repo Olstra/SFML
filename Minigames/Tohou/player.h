@@ -1,11 +1,11 @@
 #include <SFML/Graphics.hpp> 
 
+
 enum STATE {
 	stealth,
 	alive,
 	dead
 };
-
 
 struct PLAYER {
 	
@@ -14,6 +14,8 @@ struct PLAYER {
 	int HP;
 	int attack;
 	int vel = 10;
+
+	STATE state;
 
 }player;
 
@@ -28,5 +30,6 @@ void initPlayer( ) {
 
 	player.HP = 100;
 	player.attack = 10;
+	player.state = stealth;
 
 }
