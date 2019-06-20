@@ -1,5 +1,0 @@
-# depslib dependency file v1.0
-1548811119 source:/home/oliver/Documents/SFML/Simple components/CB Template SFML/main.cpp
-	<SFML/Graphics.hpp>
-	<iostream>
-
