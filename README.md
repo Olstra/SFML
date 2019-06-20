@@ -7,8 +7,6 @@ Contains the games:
 
 Visualizations for sorting algorithms:
 * Bubble sort
-* Insertion sort
-* Selection sort
 
 Effects:
 * Purple rain
